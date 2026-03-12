@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Pilot (Scrolling Shooter)</title>
+    <style>
+        /* --- CSS STYLES --- */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #34495e; /* Dark blue background */
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        h1 {
+            color: #ecf0f1;
+            margin-bottom: 10px;
+        }
+
+        #gameCanvas {
+            background: linear-gradient(to bottom, #7fc0ff, #c3e2ff); /* Sky gradient */
+            border: 5px solid #2c3e50;
+            display: block;
+            margin: 0 auto;
+        }
+
+        #status-message {
+            color: #f39c12;
+            font-size: 1.2em;
+            margin-top: 15px;
+            min-height: 1.5em;
+        }
+
+        button {
+            background-color: #e74c3c; /* Red start button */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #c0392b;
+        }
+        /* --- END OF CSS STYLES --- */
+    </style>
+
+
+
+
+<!-- Google Fonts & FontAwesome -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style id="advanced-injected-styles">
+/* Advanced Global Animations and Colors */
+body {
+    background: radial-gradient(circle at center, #1b003a 0%, #050505 100%) !important;
+    color: #fff !important;
+    font-family: 'Orbitron', sans-serif !important;
+    overflow-x: hidden;
+}
+
+h1 {
+    font-family: 'Press Start 2P', cursive !important;
+    font-size: 2.2em !important;
+    text-align: center !important;
+    text-transform: uppercase !important;
+    background: linear-gradient(90deg, #00f2fe, #4facfe, #8338ec, #ff006e);
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    text-shadow: 0px 0px 15px rgba(79, 172, 254, 0.5) !important;
+    animation: titleGlow 3s infinite alternate !important;
+    margin-bottom: 20px !important;
+}
+
+@keyframes titleGlow {
+    from { filter: drop-shadow(0 0 5px rgba(255, 0, 110, 0.4)); }
+    to { filter: drop-shadow(0 0 20px rgba(0, 242, 254, 0.8)); }
+}
+
+canvas, .container > div#game-board, table {
+    background: rgba(20, 20, 20, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 2px solid rgba(0, 242, 254, 0.3) !important;
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.2), inset 0 0 20px rgba(131, 56, 236, 0.2) !important;
+    border-radius: 15px !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    margin: 0 auto;
+}
+
+canvas:hover, table:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 0 30px rgba(0, 242, 254, 0.6), inset 0 0 30px rgba(131, 56, 236, 0.4) !important;
+    border-color: rgba(0, 242, 254, 0.8) !important;
+}
+
+button {
+    font-family: 'Orbitron', sans-serif !important;
+    font-size: 1.1em !important;
+    background: linear-gradient(45deg, #ff006e, #8338ec) !important;
+    border: 2px solid transparent !important;
+    color: white !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    padding: 12px 25px !important;
+    border-radius: 30px !important;
+    box-shadow: 0 5px 15px rgba(255, 0, 110, 0.4) !important;
+    transition: all 0.3s ease !important;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(45deg, #8338ec, #00f2fe);
+    z-index: -1;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+}
+
+button:hover::before {
+    opacity: 1;
+}
+
+button:hover {
+    transform: translateY(-3px) scale(1.05) !important;
+    box-shadow: 0 8px 25px rgba(0, 242, 254, 0.6) !important;
+    border: 2px solid #00f2fe !important;
+}
+
+#status-message, .status, p {
+    font-family: 'Orbitron', sans-serif !important;
+    color: #4facfe !important;
+    text-shadow: 0 0 10px rgba(79, 172, 254, 0.4) !important;
+    font-size: 1.2em !important;
+    margin: 15px 0 !important;
+}
+
+/* Custom Background Particles */
+.bg-particle {
+    position: fixed;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 0 10px white;
+    pointer-events: none;
+    z-index: -1;
+    animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    20% { opacity: 0.8; }
+    80% { opacity: 0.5; }
+    100% { transform: translateY(-100px) scale(1); opacity: 0; }
+}
+</style>
+
+</head>
+<body>
+<a href="index.html" class="back-btn-global">🔙 Back to Games</a>
+
+
+    <div class="container">
+        <h1>Sky Pilot ✈️</h1>
+        <canvas id="gameCanvas" width="480" height="480"></canvas>
+        <div id="status-message">Click Start, then press SPACEBAR or click to fly!</div>
+        <button id="startButton" onclick="startGame()">Start Game</button>
+    </div>
+
+    <script>
+        // --- JAVASCRIPT LOGIC ---
+
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const statusMessage = document.getElementById("status-message");
+        const startButton = document.getElementById("startButton");
+
+        let gameRunning = false;
+        let score = 0;
+        let gameLoopId; // To hold the requestAnimationFrame ID
+
+        // --- Player (Pilot) Properties ---
+        const player = {
+            x: 50,
+            y: canvas.height / 2,
+            radius: 15,
+            color: "#f1c40f", // Yellow
+            dy: 0,           // Vertical velocity
+            gravity: 0.5,    // Downward acceleration
+            lift: -8         // Upward impulse on flap
+        };
+
+        // --- Obstacle (Pipes) Properties ---
+        let pipes = [];
+        const pipeWidth = 50;
+        const pipeGap = 130; // Vertical space between top and bottom pipe
+        const pipeSpeed = 3;
+        let frameCount = 0;
+        const spawnInterval = 100; // Frames between pipe spawns (around 1.6 seconds at 60fps)
+
+        // --- Drawing Functions ---
+
+        function drawPlayer() {
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+            ctx.fillStyle = player.color;
+            ctx.fill();
+            ctx.closePath();
+            
+            // Draw a cockpit/eye for flair
+            ctx.fillStyle = "#333";
+            ctx.fillRect(player.x + 5, player.y - 5, 5, 5);
+        }
+
+        function drawPipes() {
+            ctx.fillStyle = "#2ecc71"; // Green pipes
+            
+            pipes.forEach(p => {
+                // Top pipe
+                ctx.fillRect(p.x, 0, pipeWidth, p.top);
+                // Bottom pipe
+                ctx.fillRect(p.x, canvas.height - p.bottom, pipeWidth, p.bottom);
+            });
+        }
+
+        function drawScore() {
+            ctx.font = "20px Arial";
+            ctx.fillStyle = "#2c3e50";
+            ctx.textAlign = "left";
+            ctx.fillText("Score: " + score, 10, 30);
+        }
+
+        // --- Game Logic ---
+
+        /**
+         * Checks for collisions between the player and walls/pipes.
+         */
+        function checkCollision() {
+            // 1. Wall Collision (Top and Bottom)
+            if (player.y + player.radius > canvas.height || player.y - player.radius < 0) {
+                gameOver();
+                return;
+            }
+
+            // 2. Pipe Collision
+            for (let i = 0; i < pipes.length; i++) {
+                const p = pipes[i];
+
+                // Check if the player is horizontally aligned with the pipe
+                if (player.x + player.radius > p.x && player.x - player.radius < p.x + pipeWidth) {
+                    
+                    // Check collision with the top pipe OR the bottom pipe
+                    if (player.y - player.radius < p.top || player.y + player.radius > canvas.height - p.bottom) {
+                        gameOver();
+                        return;
+                    }
+                }
+            }
+        }
+
+        /**
+         * Updates player physics and pipe positions.
+         */
+        function update() {
+            // 1. Player Physics (Gravity and Movement)
+            player.dy += player.gravity; // Apply gravity
+            player.y += player.dy;       // Update position
+
+            // 2. Pipe Spawning and Movement
+            frameCount++;
+            
+            if (frameCount % spawnInterval === 0) {
+                // Determine random height for the top pipe
+                const minTop = 50;
+                const maxTop = canvas.height - pipeGap - minTop;
+                const topHeight = Math.floor(Math.random() * (maxTop - minTop + 1)) + minTop;
+                const bottomHeight = canvas.height - topHeight - pipeGap;
+                
+                pipes.push({ 
+                    x: canvas.width, 
+                    top: topHeight, 
+                    bottom: bottomHeight,
+                    passed: false // Flag to ensure score only increases once
+                });
+            }
+
+            // Move existing pipes and remove off-screen pipes
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                const p = pipes[i];
+                p.x -= pipeSpeed; // Move left
+
+                // Score Check
+                if (p.x + pipeWidth < player.x && !p.passed) {
+                    score++;
+                    p.passed = true;
+                }
+
+                // Remove pipe if it goes off screen
+                if (p.x + pipeWidth < 0) {
+                    pipes.splice(i, 1);
+                }
+            }
+        }
+
+        // --- Main Game Loop ---
+
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            // 1. Clear Canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 2. Draw
+            drawPipes();
+            drawPlayer();
+            drawScore();
+
+            // 3. Update
+            update();
+            
+            // 4. Check for End Condition
+            checkCollision();
+
+            // Continue the loop
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }
+
+        // --- Control and Setup ---
+
+        /**
+         * Player input (flap).
+         */
+        function flap() {
+            if (gameRunning) {
+                player.dy = player.lift; // Instant upward velocity
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault(); // Prevent spacebar from scrolling
+                flap();
+            }
+        });
+
+        canvas.addEventListener('click', flap);
+
+        function gameOver() {
+            cancelAnimationFrame(gameLoopId);
+            gameRunning = false;
+            statusMessage.textContent = `💥 Game Over! Final Score: ${score}`;
+            startButton.style.display = 'block';
+            startButton.textContent = 'Play Again';
+        }
+
+        function startGame() {
+            if (gameRunning) return;
+            
+            // Reset game state
+            pipes = [];
+            score = 0;
+            player.y = canvas.height / 2;
+            player.dy = 0;
+            frameCount = 0;
+            
+            gameRunning = true;
+            statusMessage.textContent = "Flying...";
+            startButton.style.display = 'none';
+            
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }
+        
+        // --- END OF JAVASCRIPT LOGIC ---
+    </script>
+
+<script id="advanced-injected-logic">
+// Inject floating background particles globally into each game
+function createParticles() {
+    const colors = ['#00f2fe', '#4facfe', '#8338ec', '#ff006e', '#ffd700'];
+    for(let i=0; i<40; i++) {
+        let p = document.createElement('div');
+        p.className = 'bg-particle';
+        let size = Math.random() * 5 + 3;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.boxShadow = `0 0 ${size*2}px ${p.style.background}`;
+        p.style.animationDuration = (Math.random() * 4 + 4) + 's';
+        p.style.animationDelay = (Math.random() * 5) + 's';
+        document.body.appendChild(p);
+    }
+}
+
+if(document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", createParticles);
+} else {
+    createParticles();
+}
+
+// Global click interactive logic: Ripple effect
+document.addEventListener("click", function(e) {
+    if(e.target.tagName === 'CANVAS' || e.target.tagName === 'BUTTON' || e.target.tagName === 'TD') {
+        let ripple = document.createElement('div');
+        ripple.style.position = 'fixed';
+        ripple.style.left = e.clientX + 'px';
+        ripple.style.top = e.clientY + 'px';
+        ripple.style.width = '10px';
+        ripple.style.height = '10px';
+        ripple.style.background = 'transparent';
+        ripple.style.border = '2px solid #00f2fe';
+        ripple.style.borderRadius = '50%';
+        ripple.style.pointerEvents = 'none';
+        ripple.style.transform = 'translate(-50%, -50%)';
+        ripple.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        ripple.style.zIndex = '10000';
+        document.body.appendChild(ripple);
+        
+        requestAnimationFrame(() => {
+            ripple.style.width = '120px';
+            ripple.style.height = '120px';
+            ripple.style.opacity = '0';
+            ripple.style.borderWidth = '15px';
+            ripple.style.borderColor = '#ff006e';
+        });
+        
+        setTimeout(() => ripple.remove(), 500);
+    }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whack-a-Mole</title>
+    <style>
+        /* --- CSS STYLES --- */
+        body {
+            font-family: 'Bangers', cursive, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #795548; /* Brown dirt background */
+            color: #fff;
+        }
+
+        .container {
+            background-color: #5d4037;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+            text-align: center;
+        }
+
+        h1 {
+            color: #ffeb3b; /* Yellow title */
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        #score, #time {
+            font-size: 1.5em;
+            margin: 10px 0;
+            color: #ffffff;
+        }
+
+        /* Game Board (The Grid of Holes) */
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+            margin: 20px auto;
+            border: 5px solid #4e342e;
+            padding: 10px;
+            background-color: #3e2723;
+            border-radius: 15px;
+        }
+
+        .hole {
+            width: 100px;
+            height: 100px;
+            background-color: #000; /* Hole top/rim */
+            border-radius: 50%; /* Makes it round */
+            position: relative;
+            overflow: hidden; /* Important to hide the mole when not popped up */
+        }
+
+        .mole {
+            width: 80%;
+            height: 80%;
+            background-color: #8b4513; /* Mole color */
+            position: absolute;
+            bottom: -80px; /* Start position: hidden below the hole */
+            left: 10%;
+            border-radius: 50%;
+            transition: bottom 0.2s ease-out; /* Smooth pop-up animation */
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            user-select: none;
+            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .mole.up {
+            bottom: 5px; /* End position: popped up */
+        }
+
+        /* Buttons */
+        button {
+            background-color: #e91e63; /* Pink */
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2em;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #c2185b;
+        }
+        /* --- END OF CSS STYLES --- */
+    </style>
+    <link href='https://fonts.googleapis.com/css?family=Bangers' rel='stylesheet'>
+
+
+
+
+<!-- Google Fonts & FontAwesome -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style id="advanced-injected-styles">
+/* Advanced Global Animations and Colors */
+body {
+    background: radial-gradient(circle at center, #1b003a 0%, #050505 100%) !important;
+    color: #fff !important;
+    font-family: 'Orbitron', sans-serif !important;
+    overflow-x: hidden;
+}
+
+h1 {
+    font-family: 'Press Start 2P', cursive !important;
+    font-size: 2.2em !important;
+    text-align: center !important;
+    text-transform: uppercase !important;
+    background: linear-gradient(90deg, #00f2fe, #4facfe, #8338ec, #ff006e);
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    text-shadow: 0px 0px 15px rgba(79, 172, 254, 0.5) !important;
+    animation: titleGlow 3s infinite alternate !important;
+    margin-bottom: 20px !important;
+}
+
+@keyframes titleGlow {
+    from { filter: drop-shadow(0 0 5px rgba(255, 0, 110, 0.4)); }
+    to { filter: drop-shadow(0 0 20px rgba(0, 242, 254, 0.8)); }
+}
+
+canvas, .container > div#game-board, table {
+    background: rgba(20, 20, 20, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 2px solid rgba(0, 242, 254, 0.3) !important;
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.2), inset 0 0 20px rgba(131, 56, 236, 0.2) !important;
+    border-radius: 15px !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    margin: 0 auto;
+}
+
+canvas:hover, table:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 0 30px rgba(0, 242, 254, 0.6), inset 0 0 30px rgba(131, 56, 236, 0.4) !important;
+    border-color: rgba(0, 242, 254, 0.8) !important;
+}
+
+button {
+    font-family: 'Orbitron', sans-serif !important;
+    font-size: 1.1em !important;
+    background: linear-gradient(45deg, #ff006e, #8338ec) !important;
+    border: 2px solid transparent !important;
+    color: white !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    padding: 12px 25px !important;
+    border-radius: 30px !important;
+    box-shadow: 0 5px 15px rgba(255, 0, 110, 0.4) !important;
+    transition: all 0.3s ease !important;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(45deg, #8338ec, #00f2fe);
+    z-index: -1;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+}
+
+button:hover::before {
+    opacity: 1;
+}
+
+button:hover {
+    transform: translateY(-3px) scale(1.05) !important;
+    box-shadow: 0 8px 25px rgba(0, 242, 254, 0.6) !important;
+    border: 2px solid #00f2fe !important;
+}
+
+#status-message, .status, p {
+    font-family: 'Orbitron', sans-serif !important;
+    color: #4facfe !important;
+    text-shadow: 0 0 10px rgba(79, 172, 254, 0.4) !important;
+    font-size: 1.2em !important;
+    margin: 15px 0 !important;
+}
+
+/* Custom Background Particles */
+.bg-particle {
+    position: fixed;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 0 10px white;
+    pointer-events: none;
+    z-index: -1;
+    animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    20% { opacity: 0.8; }
+    80% { opacity: 0.5; }
+    100% { transform: translateY(-100px) scale(1); opacity: 0; }
+}
+</style>
+
+</head>
+<body>
+<a href="index.html" class="back-btn-global">🔙 Back to Games</a>
+
+
+    <div class="container">
+        <h1>Whack-A-Mole! 🔨</h1>
+        
+        <div id="score">Score: <span id="score-value">0</span></div>
+        <div id="time">Time Left: <span id="time-value">30</span>s</div>
+
+        <div id="game-board">
+            </div>
+
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <script>
+        // --- JAVASCRIPT LOGIC ---
+        
+        // 1. Game State Variables
+        let score = 0;
+        let timeLeft = 30;
+        let timerId = null;
+        let popUpTimerId = null;
+        let isGameRunning = false;
+        
+        // 2. DOM Elements
+        const gameBoard = document.getElementById('game-board');
+        const scoreDisplay = document.getElementById('score-value');
+        const timeDisplay = document.getElementById('time-value');
+        const startButton = document.querySelector('button');
+
+        // Array to hold references to all mole elements
+        let moles = []; 
+
+        /**
+         * Initializes the game by creating the holes and moles.
+         */
+        function createBoard() {
+            gameBoard.innerHTML = ''; // Clear previous board
+            moles = []; // Clear moles array
+
+            for (let i = 0; i < 9; i++) {
+                const hole = document.createElement('div');
+                hole.classList.add('hole');
+                
+                const mole = document.createElement('div');
+                mole.classList.add('mole');
+                mole.textContent = '😠'; // Mole emoji
+                mole.setAttribute('data-index', i);
+                
+                // Add click listener to the mole
+                mole.addEventListener('click', whack);
+
+                hole.appendChild(mole);
+                gameBoard.appendChild(hole);
+                moles.push(mole); // Store reference to the mole element
+            }
+        }
+
+        /**
+         * Selects a random mole to pop up.
+         */
+        function randomMolePopUp() {
+            // Remove 'up' class from all moles first
+            moles.forEach(mole => {
+                mole.classList.remove('up');
+            });
+
+            // Select a random mole
+            const randomIndex = Math.floor(Math.random() * moles.length);
+            const randomMole = moles[randomIndex];
+            
+            // Make the mole pop up
+            randomMole.classList.add('up');
+            
+            // Set a random time for the mole to stay up (between 500ms and 1500ms)
+            const popUpTime = Math.random() * 1000 + 500;
+            setTimeout(() => {
+                randomMole.classList.remove('up');
+            }, popUpTime);
+        }
+
+        /**
+         * The main game loop: calls randomMolePopUp repeatedly.
+         */
+        function startPopUpTimer() {
+            // Pop up a mole every 700 milliseconds
+            popUpTimerId = setInterval(randomMolePopUp, 700); 
+        }
+
+        /**
+         * Handles the player clicking (whacking) the mole.
+         */
+        function whack(event) {
+            const clickedMole = event.target;
+            
+            // Check if the mole is currently up AND hasn't been hit yet this cycle
+            if (clickedMole.classList.contains('up') && isGameRunning) {
+                score++;
+                scoreDisplay.textContent = score;
+                
+                // Visually confirm the hit and hide immediately
+                clickedMole.textContent = '😵'; // Change emoji on hit
+                clickedMole.classList.remove('up');
+                
+                // Reset emoji and prepare for next pop-up after a slight delay
+                setTimeout(() => {
+                    clickedMole.textContent = '😠';
+                }, 100); 
+            }
+        }
+
+        /**
+         * Starts the main game timer (countdown).
+         */
+        function countdown() {
+            timeLeft--;
+            timeDisplay.textContent = timeLeft;
+
+            if (timeLeft === 0) {
+                clearInterval(timerId);
+                clearInterval(popUpTimerId);
+                isGameRunning = false;
+                alert(`Game Over! Your final score is ${score}.`);
+                startButton.textContent = 'Play Again';
+            }
+        }
+
+        /**
+         * The main function to start or restart the game.
+         */
+        function startGame() {
+            if (isGameRunning) return; // Prevent double-start
+
+            // 1. Reset State
+            score = 0;
+            timeLeft = 30;
+            scoreDisplay.textContent = score;
+            timeDisplay.textContent = timeLeft;
+            isGameRunning = true;
+            startButton.textContent = 'Game In Progress';
+            
+            // 2. Set Timers
+            timerId = setInterval(countdown, 1000); // 1-second countdown
+            startPopUpTimer();
+        }
+
+        // Initialize the board structure on page load
+        createBoard();
+        
+        // --- END OF JAVASCRIPT LOGIC ---
+    </script>
+
+<script id="advanced-injected-logic">
+// Inject floating background particles globally into each game
+function createParticles() {
+    const colors = ['#00f2fe', '#4facfe', '#8338ec', '#ff006e', '#ffd700'];
+    for(let i=0; i<40; i++) {
+        let p = document.createElement('div');
+        p.className = 'bg-particle';
+        let size = Math.random() * 5 + 3;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.boxShadow = `0 0 ${size*2}px ${p.style.background}`;
+        p.style.animationDuration = (Math.random() * 4 + 4) + 's';
+        p.style.animationDelay = (Math.random() * 5) + 's';
+        document.body.appendChild(p);
+    }
+}
+
+if(document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", createParticles);
+} else {
+    createParticles();
+}
+
+// Global click interactive logic: Ripple effect
+document.addEventListener("click", function(e) {
+    if(e.target.tagName === 'CANVAS' || e.target.tagName === 'BUTTON' || e.target.tagName === 'TD') {
+        let ripple = document.createElement('div');
+        ripple.style.position = 'fixed';
+        ripple.style.left = e.clientX + 'px';
+        ripple.style.top = e.clientY + 'px';
+        ripple.style.width = '10px';
+        ripple.style.height = '10px';
+        ripple.style.background = 'transparent';
+        ripple.style.border = '2px solid #00f2fe';
+        ripple.style.borderRadius = '50%';
+        ripple.style.pointerEvents = 'none';
+        ripple.style.transform = 'translate(-50%, -50%)';
+        ripple.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        ripple.style.zIndex = '10000';
+        document.body.appendChild(ripple);
+        
+        requestAnimationFrame(() => {
+            ripple.style.width = '120px';
+            ripple.style.height = '120px';
+            ripple.style.opacity = '0';
+            ripple.style.borderWidth = '15px';
+            ripple.style.borderColor = '#ff006e';
+        });
+        
+        setTimeout(() => ripple.remove(), 500);
+    }
+});
+</script>
+
+</body>
+</html>

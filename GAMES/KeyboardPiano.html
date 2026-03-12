@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyboard Piano</title>
+    <style>
+        /* --- CSS STYLES --- */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        h1 {
+            color: #1a73e8; /* Blue */
+            margin-bottom: 30px;
+        }
+        
+        #instructions {
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #555;
+        }
+
+        /* Piano Key Container */
+        .piano-keys {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            padding: 10px;
+            background-color: #333; /* Dark background for key area */
+            border-radius: 8px;
+        }
+
+        .key {
+            width: 70px;
+            height: 150px;
+            background-color: #fff;
+            border: 1px solid #000;
+            border-radius: 0 0 5px 5px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 10px;
+            transition: background-color 0.1s, transform 0.1s;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+        }
+        
+        /* Visual feedback when a key is pressed */
+        .key.active {
+            background-color: #ccc; /* Grey when pressed */
+            transform: translateY(2px);
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Styling for the keyboard letter label */
+        .key-label {
+            font-size: 0.8em;
+            margin-top: 5px;
+            color: #555;
+        }
+        /* --- END OF CSS STYLES --- */
+    </style>
+
+
+
+
+<!-- Google Fonts & FontAwesome -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style id="advanced-injected-styles">
+/* Advanced Global Animations and Colors */
+body {
+    background: radial-gradient(circle at center, #1b003a 0%, #050505 100%) !important;
+    color: #fff !important;
+    font-family: 'Orbitron', sans-serif !important;
+    overflow-x: hidden;
+}
+
+h1 {
+    font-family: 'Press Start 2P', cursive !important;
+    font-size: 2.2em !important;
+    text-align: center !important;
+    text-transform: uppercase !important;
+    background: linear-gradient(90deg, #00f2fe, #4facfe, #8338ec, #ff006e);
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    text-shadow: 0px 0px 15px rgba(79, 172, 254, 0.5) !important;
+    animation: titleGlow 3s infinite alternate !important;
+    margin-bottom: 20px !important;
+}
+
+@keyframes titleGlow {
+    from { filter: drop-shadow(0 0 5px rgba(255, 0, 110, 0.4)); }
+    to { filter: drop-shadow(0 0 20px rgba(0, 242, 254, 0.8)); }
+}
+
+canvas, .container > div#game-board, table {
+    background: rgba(20, 20, 20, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 2px solid rgba(0, 242, 254, 0.3) !important;
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.2), inset 0 0 20px rgba(131, 56, 236, 0.2) !important;
+    border-radius: 15px !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    margin: 0 auto;
+}
+
+canvas:hover, table:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 0 30px rgba(0, 242, 254, 0.6), inset 0 0 30px rgba(131, 56, 236, 0.4) !important;
+    border-color: rgba(0, 242, 254, 0.8) !important;
+}
+
+button {
+    font-family: 'Orbitron', sans-serif !important;
+    font-size: 1.1em !important;
+    background: linear-gradient(45deg, #ff006e, #8338ec) !important;
+    border: 2px solid transparent !important;
+    color: white !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    padding: 12px 25px !important;
+    border-radius: 30px !important;
+    box-shadow: 0 5px 15px rgba(255, 0, 110, 0.4) !important;
+    transition: all 0.3s ease !important;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(45deg, #8338ec, #00f2fe);
+    z-index: -1;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+}
+
+button:hover::before {
+    opacity: 1;
+}
+
+button:hover {
+    transform: translateY(-3px) scale(1.05) !important;
+    box-shadow: 0 8px 25px rgba(0, 242, 254, 0.6) !important;
+    border: 2px solid #00f2fe !important;
+}
+
+#status-message, .status, p {
+    font-family: 'Orbitron', sans-serif !important;
+    color: #4facfe !important;
+    text-shadow: 0 0 10px rgba(79, 172, 254, 0.4) !important;
+    font-size: 1.2em !important;
+    margin: 15px 0 !important;
+}
+
+/* Custom Background Particles */
+.bg-particle {
+    position: fixed;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 0 10px white;
+    pointer-events: none;
+    z-index: -1;
+    animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    20% { opacity: 0.8; }
+    80% { opacity: 0.5; }
+    100% { transform: translateY(-100px) scale(1); opacity: 0; }
+}
+</style>
+
+</head>
+<body>
+<a href="index.html" class="back-btn-global">🔙 Back to Games</a>
+
+
+    <div class="container">
+        <h1>Simple Keyboard Piano 🎶</h1>
+        
+        <div id="instructions">
+            Press the **A, S, D, F, G, H, J, K** keys on your keyboard to play the notes!
+        </div>
+
+        <div class="piano-keys" id="piano-container">
+            </div>
+    </div>
+
+    <script>
+        // --- JAVASCRIPT LOGIC ---
+        
+        // Map keyboard keys to musical frequencies (Hz) for C major scale
+        // These are standard frequencies for the 4th octave (C4 to C5)
+        const noteMap = {
+            'a': { frequency: 261.63, note: 'C4' }, // A key -> C note
+            's': { frequency: 293.66, note: 'D4' },
+            'd': { frequency: 329.63, note: 'E4' },
+            'f': { frequency: 349.23, note: 'F4' },
+            'g': { frequency: 392.00, note: 'G4' },
+            'h': { frequency: 440.00, note: 'A4' },
+            'j': { frequency: 493.88, note: 'B4' },
+            'k': { frequency: 523.25, note: 'C5' }
+        };
+
+        const pianoContainer = document.getElementById('piano-container');
+        
+        // Web Audio API context
+        let audioContext;
+        
+        // Keep track of currently playing oscillators to prevent key-press stacking
+        let oscillators = {};
+
+        /**
+         * Initializes the Web Audio API context. Must be done after a user interaction.
+         */
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        /**
+         * Plays a specific frequency.
+         * @param {number} frequency - The frequency (in Hz) to play.
+         * @param {string} key - The keyboard key that triggered the note.
+         */
+        function playNote(frequency, key) {
+            initAudioContext();
+            
+            // Check if the note is already playing
+            if (oscillators[key]) {
+                return;
+            }
+
+            // Create oscillator node (the sound source)
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'sine'; // Can be 'sine', 'square', 'sawtooth', 'triangle'
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+
+            // Create gain node (the volume control)
+            const gainNode = audioContext.createGain();
+            // Start quiet and fade in quickly
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.01); 
+
+            // Connect the nodes: Oscillator -> Gain -> Destination (Speakers)
+            oscillator.connect(gainNode).connect(audioContext.destination);
+
+            // Start the sound
+            oscillator.start();
+            oscillators[key] = oscillator; // Store the oscillator
+        }
+
+        /**
+         * Stops the note associated with the given keyboard key.
+         * @param {string} key - The keyboard key to stop.
+         */
+        function stopNote(key) {
+            const oscillator = oscillators[key];
+            if (oscillator) {
+                // Quickly fade out the note to prevent clicks/pops
+                const gainNode = oscillator.context.createGain();
+                oscillator.disconnect();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                gainNode.gain.linearRampToValueAtTime(0.0001, audioContext.currentTime + 0.1);
+                
+                // Stop the oscillator after the fade-out
+                oscillator.stop(audioContext.currentTime + 0.1); 
+                delete oscillators[key];
+            }
+        }
+
+        // --- Event Handlers ---
+
+        /**
+         * Handles pressing a key on the physical keyboard.
+         */
+        document.addEventListener('keydown', (event) => {
+            const key = event.key.toLowerCase();
+            if (noteMap[key]) {
+                // Prevent default browser actions (like scrolling)
+                event.preventDefault(); 
+                
+                // Add visual feedback
+                const keyElement = document.querySelector(`.key[data-key="${key}"]`);
+                if (keyElement) {
+                    keyElement.classList.add('active');
+                }
+                
+                playNote(noteMap[key].frequency, key);
+            }
+        });
+
+        /**
+         * Handles releasing a key on the physical keyboard.
+         */
+        document.addEventListener('keyup', (event) => {
+            const key = event.key.toLowerCase();
+            if (noteMap[key]) {
+                // Remove visual feedback
+                const keyElement = document.querySelector(`.key[data-key="${key}"]`);
+                if (keyElement) {
+                    keyElement.classList.remove('active');
+                }
+                
+                stopNote(key);
+            }
+        });
+
+        /**
+         * Dynamically creates the visual piano keys in the HTML.
+         */
+        function createPianoKeys() {
+            pianoContainer.innerHTML = ''; // Clear existing keys
+            
+            for (const [key, data] of Object.entries(noteMap)) {
+                const keyDiv = document.createElement('div');
+                keyDiv.classList.add('key');
+                keyDiv.setAttribute('data-key', key);
+                
+                // Note Label (e.g., C4)
+                const noteLabel = document.createElement('span');
+                noteLabel.textContent = data.note;
+                
+                // Keyboard Key Label (e.g., A)
+                const keyLabel = document.createElement('span');
+                keyLabel.classList.add('key-label');
+                keyLabel.textContent = key.toUpperCase();
+                
+                keyDiv.appendChild(noteLabel);
+                keyDiv.appendChild(keyLabel);
+
+                // Add mouse event handlers for screen clicks
+                keyDiv.addEventListener('mousedown', () => {
+                    keyDiv.classList.add('active');
+                    playNote(data.frequency, key);
+                });
+                
+                keyDiv.addEventListener('mouseup', () => {
+                    keyDiv.classList.remove('active');
+                    stopNote(key);
+                });
+
+                keyDiv.addEventListener('mouseleave', () => {
+                     if (keyDiv.classList.contains('active')) {
+                        keyDiv.classList.remove('active');
+                        stopNote(key);
+                    }
+                });
+                
+                pianoContainer.appendChild(keyDiv);
+            }
+        }
+
+        // Start the piano UI
+        createPianoKeys();
+        
+        // --- END OF JAVASCRIPT LOGIC ---
+    </script>
+
+<script id="advanced-injected-logic">
+// Inject floating background particles globally into each game
+function createParticles() {
+    const colors = ['#00f2fe', '#4facfe', '#8338ec', '#ff006e', '#ffd700'];
+    for(let i=0; i<40; i++) {
+        let p = document.createElement('div');
+        p.className = 'bg-particle';
+        let size = Math.random() * 5 + 3;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.boxShadow = `0 0 ${size*2}px ${p.style.background}`;
+        p.style.animationDuration = (Math.random() * 4 + 4) + 's';
+        p.style.animationDelay = (Math.random() * 5) + 's';
+        document.body.appendChild(p);
+    }
+}
+
+if(document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", createParticles);
+} else {
+    createParticles();
+}
+
+// Global click interactive logic: Ripple effect
+document.addEventListener("click", function(e) {
+    if(e.target.tagName === 'CANVAS' || e.target.tagName === 'BUTTON' || e.target.tagName === 'TD') {
+        let ripple = document.createElement('div');
+        ripple.style.position = 'fixed';
+        ripple.style.left = e.clientX + 'px';
+        ripple.style.top = e.clientY + 'px';
+        ripple.style.width = '10px';
+        ripple.style.height = '10px';
+        ripple.style.background = 'transparent';
+        ripple.style.border = '2px solid #00f2fe';
+        ripple.style.borderRadius = '50%';
+        ripple.style.pointerEvents = 'none';
+        ripple.style.transform = 'translate(-50%, -50%)';
+        ripple.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        ripple.style.zIndex = '10000';
+        document.body.appendChild(ripple);
+        
+        requestAnimationFrame(() => {
+            ripple.style.width = '120px';
+            ripple.style.height = '120px';
+            ripple.style.opacity = '0';
+            ripple.style.borderWidth = '15px';
+            ripple.style.borderColor = '#ff006e';
+        });
+        
+        setTimeout(() => ripple.remove(), 500);
+    }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Hub | Mini Games</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #050505;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            background: radial-gradient(circle at center, #240046 0%, #10002b 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Navigating Back Button */
+        .back-home {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            opacity: 0.8;
+        }
+
+        .back-home:hover {
+            opacity: 1;
+            transform: translateX(-5px) scale(1.1);
+        }
+
+        header {
+            margin-top: 50px;
+            text-align: center;
+            animation: bounceIn 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        header h1 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #ff006e, #8338ec, #3a86ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 0px 20px rgba(255, 0, 110, 0.4);
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #bbbbbb;
+            font-size: 1.2rem;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            width: 90%;
+            max-width: 1200px;
+            margin: 50px auto;
+            position: relative;
+            z-index: 5;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            animation: fadeInCard 0.6s ease-out forwards;
+        }
+
+        /* Staggered animation */
+        .game-card:nth-child(1) {
+            animation-delay: 0.1s;
+            border-image: linear-gradient(45deg, #ff0a54, #ff477e) 1;
+        }
+
+        .game-card:nth-child(2) {
+            animation-delay: 0.2s;
+            border-image: linear-gradient(45deg, #8338ec, #3a86ff) 1;
+        }
+
+        .game-card:nth-child(3) {
+            animation-delay: 0.3s;
+            border-image: linear-gradient(45deg, #06d6a0, #118ab2) 1;
+        }
+
+        .game-card:nth-child(4) {
+            animation-delay: 0.4s;
+            border-image: linear-gradient(45deg, #ffd166, #ff9f1c) 1;
+        }
+
+        .game-card:nth-child(5) {
+            animation-delay: 0.5s;
+            border-image: linear-gradient(45deg, #ff006e, #8338ec) 1;
+        }
+
+        .game-card:nth-child(6) {
+            animation-delay: 0.6s;
+            border-image: linear-gradient(45deg, #e0a96d, #201e20) 1;
+        }
+
+        .game-card:nth-child(7) {
+            animation-delay: 0.7s;
+            border-image: linear-gradient(45deg, #3a86ff, #06d6a0) 1;
+        }
+
+        .game-card:nth-child(n+8) {
+            animation-delay: 0.8s;
+            border-image: auto;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .game-card:hover {
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.05);
+            z-index: 10;
+        }
+
+        .game-card:hover::before {
+            opacity: 1;
+        }
+
+        .game-card h2 {
+            margin-bottom: 10px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            position: relative;
+            z-index: 2;
+        }
+
+        .game-card p {
+            color: #aaaaaa;
+            font-size: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .icon-emoji {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            display: inline-block;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .game-card:hover .icon-emoji {
+            transform: scale(1.3) rotate(15deg);
+        }
+
+        @keyframes fadeInCard {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+
+            70% {
+                transform: scale(0.9);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="../index.html" class="back-home">🔙 Home Portfolio</a>
+
+    <header>
+        <h1>ARCADE HUB</h1>
+        <p>Select a mini-game to play!</p>
+    </header>
+
+    <div class="grid-container">
+        <a href="Breakout.html" class="game-card">
+            <span class="icon-emoji">🧱</span>
+            <h2 style="color: #ff0a54;">Breakout</h2>
+            <p>Classic paddle & ball action.</p>
+        </a>
+        <a href="Car.html" class="game-card">
+            <span class="icon-emoji">🏎️</span>
+            <h2 style="color: #3a86ff;">Car Racing</h2>
+            <p>Dodge obstacles at high speed.</p>
+        </a>
+        <a href="CardMatch.html" class="game-card">
+            <span class="icon-emoji">🃏</span>
+            <h2 style="color: #06d6a0;">Card Match</h2>
+            <p>Test your memory skills.</p>
+        </a>
+        <a href="Chess.html" class="game-card">
+            <span class="icon-emoji">♟️</span>
+            <h2 style="color: #ffd166;">Chess</h2>
+            <p>A game of pure strategy.</p>
+        </a>
+        <a href="Daino.html" class="game-card">
+            <span class="icon-emoji">🦖</span>
+            <h2 style="color: #ff006e;">Dino Run</h2>
+            <p>Jump over the cactus!</p>
+        </a>
+        <a href="Drawing.html" class="game-card">
+            <span class="icon-emoji">🖌️</span>
+            <h2 style="color: #e0a96d;">Drawing</h2>
+            <p>Express your creativity.</p>
+        </a>
+        <a href="GussGame.html" class="game-card">
+            <span class="icon-emoji">🤔</span>
+            <h2 style="color: #118ab2;">Guess Game</h2>
+            <p>Guess the correct answer.</p>
+        </a>
+        <a href="KeyboardPiano.html" class="game-card">
+            <span class="icon-emoji">🎹</span>
+            <h2 style="color: #ff9f1c;">Keyboard Piano</h2>
+            <p>Make some sweet music.</p>
+        </a>
+        <a href="RPC.html" class="game-card">
+            <span class="icon-emoji">✌️</span>
+            <h2 style="color: #ff477e;">R-P-S</h2>
+            <p>Rock, Paper, Scissors.</p>
+        </a>
+        <a href="SkyPilot.html" class="game-card">
+            <span class="icon-emoji">✈️</span>
+            <h2 style="color: #8338ec;">Sky Pilot</h2>
+            <p>Navigate the open skies.</p>
+        </a>
+        <a href="Sudoku.html" class="game-card">
+            <span class="icon-emoji">🔢</span>
+            <h2 style="color: #06d6a0;">Sudoku</h2>
+            <p>Brain-teasing numbers puzzle.</p>
+        </a>
+        <a href="WhackMole.html" class="game-card">
+            <span class="icon-emoji">🔨</span>
+            <h2 style="color: #ff0a54;">Whack-a-Mole</h2>
+            <p>Quick reflexes needed!</p>
+        </a>
+        <a href="XO.html" class="game-card">
+            <span class="icon-emoji">❌⭕</span>
+            <h2 style="color: #3a86ff;">Tic-Tac-Toe</h2>
+            <p>X's and O's classic.</p>
+        </a>
+    </div>
+
+</body>
+
+</html>

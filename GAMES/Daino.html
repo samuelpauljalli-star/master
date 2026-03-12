@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dino Runner Game</title>
+    <style>
+        /* --- CSS STYLES --- */
+        body {
+            font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f7f7f7; /* Off-white background */
+            color: #000;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        h1 {
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        /* Canvas element for the game graphics */
+        #gameCanvas {
+            background: #ffffff; /* White background */
+            border-bottom: 3px solid #000000; /* Ground line */
+            display: block;
+            margin: 0 auto;
+        }
+
+        #status-message {
+            color: #000;
+            font-size: 1em;
+            margin-top: 15px;
+            min-height: 1.5em;
+        }
+
+        button {
+            background-color: #000; 
+            color: white;
+            border: 2px solid #000;
+            padding: 8px 15px;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #333;
+        }
+        /* --- END OF CSS STYLES --- */
+    </style>
+
+
+
+
+<!-- Google Fonts & FontAwesome -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style id="advanced-injected-styles">
+/* Advanced Global Animations and Colors */
+body {
+    background: radial-gradient(circle at center, #1b003a 0%, #050505 100%) !important;
+    color: #fff !important;
+    font-family: 'Orbitron', sans-serif !important;
+    overflow-x: hidden;
+}
+
+h1 {
+    font-family: 'Press Start 2P', cursive !important;
+    font-size: 2.2em !important;
+    text-align: center !important;
+    text-transform: uppercase !important;
+    background: linear-gradient(90deg, #00f2fe, #4facfe, #8338ec, #ff006e);
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    text-shadow: 0px 0px 15px rgba(79, 172, 254, 0.5) !important;
+    animation: titleGlow 3s infinite alternate !important;
+    margin-bottom: 20px !important;
+}
+
+@keyframes titleGlow {
+    from { filter: drop-shadow(0 0 5px rgba(255, 0, 110, 0.4)); }
+    to { filter: drop-shadow(0 0 20px rgba(0, 242, 254, 0.8)); }
+}
+
+canvas, .container > div#game-board, table {
+    background: rgba(20, 20, 20, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 2px solid rgba(0, 242, 254, 0.3) !important;
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.2), inset 0 0 20px rgba(131, 56, 236, 0.2) !important;
+    border-radius: 15px !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    margin: 0 auto;
+}
+
+canvas:hover, table:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 0 30px rgba(0, 242, 254, 0.6), inset 0 0 30px rgba(131, 56, 236, 0.4) !important;
+    border-color: rgba(0, 242, 254, 0.8) !important;
+}
+
+button {
+    font-family: 'Orbitron', sans-serif !important;
+    font-size: 1.1em !important;
+    background: linear-gradient(45deg, #ff006e, #8338ec) !important;
+    border: 2px solid transparent !important;
+    color: white !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    padding: 12px 25px !important;
+    border-radius: 30px !important;
+    box-shadow: 0 5px 15px rgba(255, 0, 110, 0.4) !important;
+    transition: all 0.3s ease !important;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(45deg, #8338ec, #00f2fe);
+    z-index: -1;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+}
+
+button:hover::before {
+    opacity: 1;
+}
+
+button:hover {
+    transform: translateY(-3px) scale(1.05) !important;
+    box-shadow: 0 8px 25px rgba(0, 242, 254, 0.6) !important;
+    border: 2px solid #00f2fe !important;
+}
+
+#status-message, .status, p {
+    font-family: 'Orbitron', sans-serif !important;
+    color: #4facfe !important;
+    text-shadow: 0 0 10px rgba(79, 172, 254, 0.4) !important;
+    font-size: 1.2em !important;
+    margin: 15px 0 !important;
+}
+
+/* Custom Background Particles */
+.bg-particle {
+    position: fixed;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 0 10px white;
+    pointer-events: none;
+    z-index: -1;
+    animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    20% { opacity: 0.8; }
+    80% { opacity: 0.5; }
+    100% { transform: translateY(-100px) scale(1); opacity: 0; }
+}
+</style>
+
+</head>
+<body>
+<a href="index.html" class="back-btn-global">🔙 Back to Games</a>
+
+
+    <div class="container">
+        <h1>Dino Runner 🌵</h1>
+        <canvas id="gameCanvas" width="600" height="150"></canvas>
+        <div id="status-message">Press Start, then press **SPACEBAR** or **UP ARROW** to Jump!</div>
+        <button id="startButton" onclick="startGame()">Start Game</button>
+    </div>
+
+    <script>
+        // --- JAVASCRIPT LOGIC (Canvas) ---
+
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const statusMessage = document.getElementById("status-message");
+        const startButton = document.getElementById("startButton");
+
+        let gameRunning = false;
+        let score = 0;
+        let highScore = 0;
+        let gameLoopId;
+
+        // --- Game Object Properties ---
+        const player = {
+            width: 25,
+            height: 40,
+            x: 50,
+            y: 0,
+            color: "#000",
+            dy: 0,
+            gravity: 0.6,
+            jumpStrength: -10,
+            isJumping: false,
+            groundY: canvas.height - 43 // Position player just above the ground line (150 - 50 + 7)
+        };
+
+        let obstacles = [];
+        const obstacleMinHeight = 25;
+        const obstacleMaxHeight = 45;
+        const obstacleColor = "#000";
+        const obstacleSpeed = 4;
+        const spawnInterval = 100; // Frames between spawns
+        let frameCount = 0;
+        let speedMultiplier = 1;
+
+        // --- Drawing Functions ---
+
+        function drawPlayer() {
+            ctx.fillStyle = player.color;
+            // Draw a simplified Dino shape (a simple rectangle)
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function drawObstacles() {
+            ctx.fillStyle = obstacleColor;
+            obstacles.forEach(obs => {
+                // Draw obstacles (cacti)
+                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+            });
+        }
+
+        function drawScore() {
+            ctx.font = "16px monospace";
+            ctx.fillStyle = "#555";
+            ctx.textAlign = "right";
+            ctx.fillText("HI " + Math.floor(highScore).toString().padStart(5, '0') + " " + Math.floor(score).toString().padStart(5, '0'), canvas.width - 10, 20);
+        }
+
+        // --- Game Logic ---
+
+        function resetGame() {
+            player.y = player.groundY;
+            player.dy = 0;
+            player.isJumping = false;
+            obstacles = [];
+            score = 0;
+            frameCount = 0;
+            speedMultiplier = 1;
+            statusMessage.textContent = "Running! Jump to avoid obstacles.";
+            startButton.style.display = 'none';
+        }
+
+        function checkCollision() {
+            for (let i = 0; i < obstacles.length; i++) {
+                const obs = obstacles[i];
+                
+                // AABB Collision Check
+                if (
+                    player.x < obs.x + obs.width &&         
+                    player.x + player.width > obs.x &&      
+                    player.y < obs.y + obs.height &&        
+                    player.y + player.height > obs.y        
+                ) {
+                    gameOver();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function update() {
+            // 1. Game Speed and Score
+            score += 0.1 * speedMultiplier; 
+            if (Math.floor(score) % 100 === 0 && Math.floor(score) > 0) {
+                 // Increase speed every 100 points
+                speedMultiplier += 0.1;
+            }
+
+            // 2. Player Physics
+            if (player.y < player.groundY || player.dy < 0) { 
+                player.dy += player.gravity; 
+            }
+
+            player.y += player.dy;
+
+            if (player.y >= player.groundY) {
+                player.y = player.groundY;
+                player.dy = 0;
+                player.isJumping = false;
+            }
+
+            // 3. Obstacle Spawning and Movement
+            frameCount++;
+
+            if (frameCount % spawnInterval === 0 || frameCount % (spawnInterval * 2) === 0) {
+                const obsHeight = obstacleMinHeight + Math.random() * (obstacleMaxHeight - obstacleMinHeight); 
+                const obsWidth = 10 + Math.random() * 20; // Varied width for different cacti
+                
+                obstacles.push({
+                    x: canvas.width,
+                    y: canvas.height - 3 - obsHeight, // 3px buffer from the ground line
+                    width: obsWidth,
+                    height: obsHeight
+                });
+            }
+
+            // Move and clean up obstacles
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                const obs = obstacles[i];
+                obs.x -= obstacleSpeed * speedMultiplier; 
+
+                // Remove obstacle if it goes off screen
+                if (obs.x + obs.width < 0) {
+                    obstacles.splice(i, 1);
+                }
+            }
+        }
+        
+        // --- Main Game Loop ---
+
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            // 1. Clear Canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 2. Update and Check
+            update();
+            if (checkCollision()) {
+                return; 
+            }
+
+            // 3. Draw
+            drawObstacles();
+            drawPlayer();
+            drawScore();
+
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }
+
+        // --- Control and Setup ---
+
+        function jump() {
+            if (gameRunning && !player.isJumping) {
+                player.isJumping = true;
+                player.dy = player.jumpStrength;
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (gameRunning && (e.code === 'Space' || e.code === 'ArrowUp')) {
+                e.preventDefault(); 
+                jump();
+            }
+        });
+
+        canvas.addEventListener('click', jump);
+
+        function gameOver() {
+            cancelAnimationFrame(gameLoopId);
+            gameRunning = false;
+            
+            if (score > highScore) {
+                highScore = score;
+            }
+
+            statusMessage.textContent = `💥 Game Over! Score: ${Math.floor(score)}`;
+            startButton.style.display = 'block';
+            startButton.textContent = 'Play Again';
+        }
+
+        function startGame() {
+            if (gameRunning) return;
+            gameRunning = true;
+            resetGame();
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }
+        
+        // Initialize the player's starting Y position
+        player.groundY = canvas.height - player.height - 3; // 3px buffer from the ground line
+
+        // --- End of JAVASCRIPT LOGIC ---
+    </script>
+
+<script id="advanced-injected-logic">
+// Inject floating background particles globally into each game
+function createParticles() {
+    const colors = ['#00f2fe', '#4facfe', '#8338ec', '#ff006e', '#ffd700'];
+    for(let i=0; i<40; i++) {
+        let p = document.createElement('div');
+        p.className = 'bg-particle';
+        let size = Math.random() * 5 + 3;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.boxShadow = `0 0 ${size*2}px ${p.style.background}`;
+        p.style.animationDuration = (Math.random() * 4 + 4) + 's';
+        p.style.animationDelay = (Math.random() * 5) + 's';
+        document.body.appendChild(p);
+    }
+}
+
+if(document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", createParticles);
+} else {
+    createParticles();
+}
+
+// Global click interactive logic: Ripple effect
+document.addEventListener("click", function(e) {
+    if(e.target.tagName === 'CANVAS' || e.target.tagName === 'BUTTON' || e.target.tagName === 'TD') {
+        let ripple = document.createElement('div');
+        ripple.style.position = 'fixed';
+        ripple.style.left = e.clientX + 'px';
+        ripple.style.top = e.clientY + 'px';
+        ripple.style.width = '10px';
+        ripple.style.height = '10px';
+        ripple.style.background = 'transparent';
+        ripple.style.border = '2px solid #00f2fe';
+        ripple.style.borderRadius = '50%';
+        ripple.style.pointerEvents = 'none';
+        ripple.style.transform = 'translate(-50%, -50%)';
+        ripple.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        ripple.style.zIndex = '10000';
+        document.body.appendChild(ripple);
+        
+        requestAnimationFrame(() => {
+            ripple.style.width = '120px';
+            ripple.style.height = '120px';
+            ripple.style.opacity = '0';
+            ripple.style.borderWidth = '15px';
+            ripple.style.borderColor = '#ff006e';
+        });
+        
+        setTimeout(() => ripple.remove(), 500);
+    }
+});
+</script>
+
+</body>
+</html>

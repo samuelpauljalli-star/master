@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IronPulse Performance | Precision Fitness Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo-container">
+            <h1>⚡ IronPulse <span>Performance</span></h1>
+            <p>Master Your Physique with Data</p>
+        </div>
+        <nav class="app-nav">
+            <button class="nav-btn active" data-target="tracker">Tracker</button>
+            <button class="nav-btn" data-target="plans">Workout Plans</button>
+            <a href="features.html" class="nav-btn">Features</a>
+            <a href="motivation.html" class="nav-btn">Motivation</a>
+        </nav>
+    </header>
+
+    <div class="container">
+
+        <!-- Tracker Tab -->
+        <div id="tracker-tab" class="tab-content active">
+            <div class="main-grid">
+                <!-- Input Section -->
+                <section class="card input-section">
+                    <h2><i class="icon">🥗</i> Log Your Fuel</h2>
+                    <div class="search-container">
+                        <input type="text" id="foodSearch" placeholder="Search 100+ foods (e.g. Biryani)..."
+                            autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <div class="field">
+                            <label for="foodSelect">Select Food</label>
+                            <select id="foodSelect">
+                                <optgroup label="🔥 Gym Essentials">
+                                    <option value="chicken">🍗 Chicken Breast</option>
+                                    <option value="egg">🥚 Egg (Whole)</option>
+                                    <option value="rice">🍚 White Rice</option>
+                                    <option value="whey">💪 Whey Protein</option>
+                                    <option value="oats">🥣 Rolled Oats</option>
+                                    <option value="peanutButter">🥜 Peanut Butter</option>
+                                </optgroup>
+                                <optgroup label="🥩 Non-Veg">
+                                    <option value="chickenThigh">🍗 Chicken Thigh</option>
+                                    <option value="mutton">🥩 Mutton</option>
+                                    <option value="fish">🐟 Fish (Rohu)</option>
+                                    <option value="tuna">🐠 Tuna</option>
+                                    <option value="prawns">🍤 Prawns</option>
+                                    <option value="eggWhite">🥚 Egg White</option>
+                                </optgroup>
+                                <optgroup label="🫘 Legumes & Veg Protein">
+                                    <option value="chickpeas">🧆 Chickpeas</option>
+                                    <option value="soybeans">🌱 Soybeans</option>
+                                    <option value="rajma">🫘 Rajma</option>
+                                    <option value="blackChana">⚫ Black Chana</option>
+                                    <option value="moong">🟢 Moong Dal</option>
+                                    <option value="masoor">🫘 Masoor Dal</option>
+                                    <option value="lentils">🥣 Boiled Lentils</option>
+                                </optgroup>
+                                <optgroup label="🌾 Grains">
+                                    <option value="brownRice">🍚 Brown Rice</option>
+                                    <option value="quinoa">🌾 Quinoa</option>
+                                    <option value="sweetPotato">🍠 Sweet Potato</option>
+                                    <option value="wheatBread">🍞 Wheat Bread</option>
+                                    <option value="pasta">🍝 Pasta</option>
+                                    <option value="corn">🌽 Corn</option>
+                                </optgroup>
+                                <optgroup label="🧀 Dairy">
+                                    <option value="paneer">🧀 Paneer</option>
+                                    <option value="tofu">🟫 Tofu</option>
+                                    <option value="greekYogurt">🥣 Greek Yogurt</option>
+                                    <option value="curd">🥛 Curd</option>
+                                    <option value="cheese">🧀 Cheese</option>
+                                    <option value="butter">🧈 Butter</option>
+                                </optgroup>
+                                <optgroup label="🍳 Breakfast">
+                                    <option value="omelette">🍳 Omelette</option>
+                                    <option value="scrambledEggs">🍳 Scrambled Eggs</option>
+                                    <option value="pbToast">🍞 PB Toast</option>
+                                    <option value="muesli">🌾 Muesli</option>
+                                    <option value="idli">🥟 Idli</option>
+                                    <option value="dosa">🥞 Dosa</option>
+                                    <option value="upma">🍲 Upma</option>
+                                    <option value="poha">🍛 Poha</option>
+                                </optgroup>
+                                <optgroup label="🥦 Veg & Salad">
+                                    <option value="broccoli">🥦 Broccoli</option>
+                                    <option value="spinach">🌿 Spinach</option>
+                                    <option value="carrot">🥕 Carrot</option>
+                                    <option value="avocado">🥑 Avocado</option>
+                                    <option value="cabbage">🥬 Cabbage</option>
+                                    <option value="beetroot">🟥 Beetroot</option>
+                                </optgroup>
+                                <optgroup label="🍎 Fruits">
+                                    <option value="banana">🍌 Banana</option>
+                                    <option value="apple">🍎 Apple</option>
+                                    <option value="mango">🥭 Mango</option>
+                                    <option value="orange">🍊 Orange</option>
+                                    <option value="strawberry">🍓 Strawberry</option>
+                                    <option value="pineapple">🍍 Pineapple</option>
+                                </optgroup>
+                                <optgroup label="🥜 Nuts & Seeds">
+                                    <option value="almonds">🌰 Almonds</option>
+                                    <option value="cashews">🥜 Cashews</option>
+                                    <option value="walnuts">🌰 Walnuts</option>
+                                    <option value="chia">🌱 Chia Seeds</option>
+                                    <option value="pumpkinSeeds">🎃 Pumpkin Seeds</option>
+                                </optgroup>
+                                <optgroup label="🍜 Indian Meals">
+                                    <option value="chickenBiryani">🍗 Chicken Biryani</option>
+                                    <option value="vegBiryani">🍛 Veg Biryani</option>
+                                    <option value="dalTadka">🥘 Dal Tadka</option>
+                                    <option value="chole">🧆 Chole</option>
+                                    <option value="curdRice">🥣 Curd Rice</option>
+                                </optgroup>
+                                <optgroup label="🍖 Fast Food">
+                                    <option value="shawarma">🌯 Shawarma</option>
+                                    <option value="fries">🍟 French Fries</option>
+                                    <option value="kfc">🍗 KFC Chicken</option>
+                                    <option value="pizza">🍕 Pizza</option>
+                                    <option value="burger">🍔 Burger</option>
+                                </optgroup>
+                                <optgroup label="🥤 Drinks">
+                                    <option value="milk">🥛 Milk</option>
+                                    <option value="proteinShake">💪 Protein Shake</option>
+                                    <option value="coconutWater">🥥 Coconut Water</option>
+                                    <option value="bananaShake">🍌 Banana Shake</option>
+                                    <option value="cola">🥤 Cola</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="gramsInput">Amount (Grams / ml)</label>
+                            <input type="number" id="gramsInput" placeholder="e.g. 150">
+                        </div>
+                        <button id="addFoodBtn" class="primary-btn">Add to Log</button>
+                    </div>
+                </section>
+
+                <!-- Dashboard -->
+                <section class="card dashboard">
+                    <h2><i class="icon">📊</i> Daily Macro Summary</h2>
+                    <div class="stats-grid">
+                        <div class="stat-item calories">
+                            <span class="value" id="totalCalories">0</span>
+                            <span class="label">Calories (kcal)</span>
+                            <div class="progress-bar">
+                                <div class="fill" id="calProgress"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item protein">
+                            <span class="value" id="totalProtein">0</span>
+                            <span class="label">Protein (g)</span>
+                        </div>
+                        <div class="stat-item carbs">
+                            <span class="value" id="totalCarbs">0</span>
+                            <span class="label">Carbs (g)</span>
+                        </div>
+                        <div class="stat-item fats">
+                            <span class="value" id="totalFats">0</span>
+                            <span class="label">Fats (g)</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="macroChart"></canvas>
+                    </div>
+                </section>
+            </div>
+
+            <!-- History Table -->
+            <section class="card history">
+                <div class="card-header">
+                    <h2><i class="icon">📝</i> Today's Log</h2>
+                    <button id="clearLogBtn" class="secondary-btn">Clear All</button>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Food</th>
+                                <th>Grams</th>
+                                <th>Calories</th>
+                                <th>Protein</th>
+                                <th>Carbs</th>
+                                <th>Fats</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="foodTable"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- Plans Tab -->
+        <div id="plans-tab" class="tab-content">
+            <div class="plans-nav">
+                <button class="plan-toggle active" data-plan="male_gain">🧑 Male Muscle Gain</button>
+                <button class="plan-toggle" data-plan="male_loss">� Male Fat Loss</button>
+                <button class="plan-toggle" data-plan="female_gain">👸 Female Muscle Gain</button>
+                <button class="plan-toggle" data-plan="female_loss">💃 Female Fat Loss</button>
+            </div>
+
+            <div class="card plan-display active">
+                <div class="plan-info-banner" id="current-plan-banner">
+                    <p>🎯 Goal: Hypertrophy & Muscle Mass | 🥩 High Protein Surplus</p>
+                </div>
+                <div class="schedule-grid" id="plan-schedule">
+                    <!-- Daily cards injected by JS -->
+                </div>
+            </div>
+
+            <section class="card workflow-section">
+                <h2><i class="icon">🔄</i> Daily Optimal Workflow</h2>
+                <div class="workflow-grid">
+                    <div class="workflow-item">
+                        <h3>🌅 Morning</h3>
+                        <ul>
+                            <li>Wake up & 500ml Water</li>
+                            <li>Light Stretching</li>
+                            <li>High Protein Breakfast</li>
+                        </ul>
+                    </div>
+                    <div class="workflow-item">
+                        <h3>🏋️ Gym Time</h3>
+                        <ul>
+                            <li>Dynamic Warmup (5-10m)</li>
+                            <li>Main Strength Training</li>
+                            <li>Static Cooldown Stretching</li>
+                        </ul>
+                    </div>
+                    <div class="workflow-item">
+                        <h3>🍽 Post-Workout</h3>
+                        <ul>
+                            <li>Protein Shake (within 30m)</li>
+                            <li>Balanced Macro Meal</li>
+                        </ul>
+                    </div>
+                    <div class="workflow-item">
+                        <h3>🌙 Night</h3>
+                        <ul>
+                            <li>Light Dinner (No Junk)</li>
+                            <li>Reflection / Prep for Tomorrow</li>
+                            <li>7-8 Hours Sleep</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </div>
+
+    <!-- AI Gym Assistant Bar -->
+    <div class="chat-bar">
+        <div class="chat-container">
+            <div class="chat-header">
+                <span class="pulse-icon">⚡</span>
+                <span>IronPulse AI Assistant</span>
+            </div>
+            <div class="chat-input-wrapper">
+                <input type="text" id="gymQuery" placeholder="Ask about workouts, diet, or recovery...">
+                <button id="sendQuery">Send</button>
+            </div>
+            <div id="chatResponse" class="chat-response"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
