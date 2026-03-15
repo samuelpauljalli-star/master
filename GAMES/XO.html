@@ -88,115 +88,192 @@
 
 
 
-<!-- Google Fonts & FontAwesome -->
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<style id="advanced-injected-styles">
-/* Advanced Global Animations and Colors */
+
+
+
+
+
+
+<!-- Preconnect and Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style id="wow-injected-styles">
+/* --- GLOBAL RESET & THEME --- */
+:root {
+    --primary: #00ffcc;
+    --secondary: #b026ff;
+    --bg-dark: #07070a;
+    --glass-bg: rgba(15, 15, 20, 0.5);
+    --glass-border: rgba(255, 255, 255, 0.08);
+}
+
 body {
-    background: radial-gradient(circle at center, #1b003a 0%, #050505 100%) !important;
-    color: #fff !important;
-    font-family: 'Orbitron', sans-serif !important;
+    background-color: var(--bg-dark) !important;
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(176, 38, 255, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(0, 255, 204, 0.1) 0%, transparent 40%) !important;
+    color: #e0e0e0 !important;
+    font-family: 'Poppins', sans-serif !important;
     overflow-x: hidden;
+    min-height: 100vh;
 }
 
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(7,7,10,0.95), rgba(20,10,30,0.7));
+    z-index: -2;
+    pointer-events: none;
+}
+
+/* TYPOGRAPHY */
 h1 {
-    font-family: 'Press Start 2P', cursive !important;
-    font-size: 2.2em !important;
-    text-align: center !important;
-    text-transform: uppercase !important;
-    background: linear-gradient(90deg, #00f2fe, #4facfe, #8338ec, #ff006e);
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    text-shadow: 0px 0px 15px rgba(79, 172, 254, 0.5) !important;
-    animation: titleGlow 3s infinite alternate !important;
-    margin-bottom: 20px !important;
+    font-family: 'Space Mono', monospace !important;
+    font-size: clamp(2rem, 5vw, 3.5rem) !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    text-align: center;
+    background: linear-gradient(135deg, #00ffcc, #b026ff, #ff006e);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+    filter: drop-shadow(0px 0px 10px rgba(0, 255, 204, 0.3));
+    animation: h1Shine 5s linear infinite;
+    margin: 40px 0 20px 0 !important;
+    letter-spacing: 3px;
 }
 
-@keyframes titleGlow {
-    from { filter: drop-shadow(0 0 5px rgba(255, 0, 110, 0.4)); }
-    to { filter: drop-shadow(0 0 20px rgba(0, 242, 254, 0.8)); }
+@keyframes h1Shine {
+    to { background-position: 200% center; }
 }
 
-canvas, .container > div#game-board, table {
-    background: rgba(20, 20, 20, 0.6) !important;
-    backdrop-filter: blur(10px) !important;
-    border: 2px solid rgba(0, 242, 254, 0.3) !important;
-    box-shadow: 0 0 20px rgba(0, 242, 254, 0.2), inset 0 0 20px rgba(131, 56, 236, 0.2) !important;
-    border-radius: 15px !important;
-    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
-    margin: 0 auto;
+/* GLASSMORPHISM CONTAINERS */
+canvas, table, .container > div#game-board, .glass-panel {
+    transform: perspective(1000px) rotateX(8deg) scale(1.02) !important;
+    transform-origin: bottom center;
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(20px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(200%) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 15px 35px 0 rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    display: block;
+    margin: 25px auto;
 }
 
 canvas:hover, table:hover {
-    transform: scale(1.02) !important;
-    box-shadow: 0 0 30px rgba(0, 242, 254, 0.6), inset 0 0 30px rgba(131, 56, 236, 0.4) !important;
-    border-color: rgba(0, 242, 254, 0.8) !important;
+    transform: translateY(-8px) scale(1.03) !important;
+    box-shadow: 0 25px 50px rgba(0, 255, 204, 0.2), inset 0 0 25px rgba(176, 38, 255, 0.2) !important;
+    border-color: rgba(0, 255, 204, 0.4) !important;
 }
 
-button {
-    font-family: 'Orbitron', sans-serif !important;
-    font-size: 1.1em !important;
-    background: linear-gradient(45deg, #ff006e, #8338ec) !important;
-    border: 2px solid transparent !important;
-    color: white !important;
-    font-weight: bold !important;
+/* MODERN BUTTONS */
+button, .btn {
+    font-family: 'Space Mono', monospace !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    padding: 14px 35px !important;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #fff !important;
+    background: linear-gradient(135deg, #b026ff, #00ffcc) !important;
+    background-size: 200% auto !important;
+    border: none !important;
+    border-radius: 50px !important;
+    box-shadow: 0 5px 20px rgba(176, 38, 255, 0.3) !important;
     cursor: pointer !important;
-    padding: 12px 25px !important;
-    border-radius: 30px !important;
-    box-shadow: 0 5px 15px rgba(255, 0, 110, 0.4) !important;
-    transition: all 0.3s ease !important;
+    transition: all 0.4s ease !important;
     position: relative;
     overflow: hidden;
     z-index: 1;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    margin: 15px auto;
+    display: inline-block;
 }
 
-button::before {
+button::after {
     content: '';
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(45deg, #8338ec, #00f2fe);
-    z-index: -1;
-    transition: opacity 0.3s ease;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, #00ffcc, #b026ff);
     opacity: 0;
+    z-index: -1;
+    transition: opacity 0.4s ease;
 }
 
-button:hover::before {
+button:hover::after {
     opacity: 1;
 }
 
 button:hover {
-    transform: translateY(-3px) scale(1.05) !important;
-    box-shadow: 0 8px 25px rgba(0, 242, 254, 0.6) !important;
-    border: 2px solid #00f2fe !important;
+    transform: translateY(-4px) !important;
+    box-shadow: 0 10px 30px rgba(0, 255, 204, 0.5) !important;
 }
 
+/* PARAGRAPHS & STATUS */
 #status-message, .status, p {
-    font-family: 'Orbitron', sans-serif !important;
-    color: #4facfe !important;
-    text-shadow: 0 0 10px rgba(79, 172, 254, 0.4) !important;
-    font-size: 1.2em !important;
-    margin: 15px 0 !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 1.1rem !important;
+    color: #b3b3b3 !important;
+    text-align: center;
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+    animation: fadeIn 1.5s ease-out;
 }
 
-/* Custom Background Particles */
-.bg-particle {
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* NAVIGATION LINKS */
+a.back-btn-global, a.back-home {
+    position: fixed;
+    top: 25px;
+    left: 25px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    color: #fff;
+    text-decoration: none;
+    background: rgba(25, 25, 35, 0.6);
+    padding: 12px 24px;
+    border-radius: 30px;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    z-index: 1000;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+a.back-btn-global:hover, a.back-home:hover {
+    background: rgba(0, 255, 204, 0.15);
+    border-color: #00ffcc;
+    transform: translateX(-5px) scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+}
+
+/* CUSTOM SCROLLBAR */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #07070a; }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #b026ff, #00ffcc); border-radius: 10px; }
+
+/* AMBIENT GLOW ORBS */
+.ambient-glow {
     position: fixed;
     border-radius: 50%;
-    background: white;
-    box-shadow: 0 0 10px white;
+    filter: blur(100px);
+    z-index: -3;
+    animation: floatOrb 12s ease-in-out infinite alternate;
     pointer-events: none;
-    z-index: -1;
-    animation: floatUp linear infinite;
 }
 
-@keyframes floatUp {
-    0% { transform: translateY(100vh) scale(0); opacity: 0; }
-    20% { opacity: 0.8; }
-    80% { opacity: 0.5; }
-    100% { transform: translateY(-100px) scale(1); opacity: 0; }
+@keyframes floatOrb {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(80px, 80px) scale(1.1); }
 }
 </style>
 
@@ -338,58 +415,127 @@ button:hover {
         // --- END OF JAVASCRIPT LOGIC ---
     </script>
 
-<script id="advanced-injected-logic">
-// Inject floating background particles globally into each game
-function createParticles() {
-    const colors = ['#00f2fe', '#4facfe', '#8338ec', '#ff006e', '#ffd700'];
-    for(let i=0; i<40; i++) {
-        let p = document.createElement('div');
-        p.className = 'bg-particle';
-        let size = Math.random() * 5 + 3;
-        p.style.width = size + 'px';
-        p.style.height = size + 'px';
-        p.style.left = Math.random() * 100 + 'vw';
-        p.style.background = colors[Math.floor(Math.random() * colors.length)];
-        p.style.boxShadow = `0 0 ${size*2}px ${p.style.background}`;
-        p.style.animationDuration = (Math.random() * 4 + 4) + 's';
-        p.style.animationDelay = (Math.random() * 5) + 's';
-        document.body.appendChild(p);
+
+
+
+<script id="wow-injected-logic">
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Custom Glow Cursor Trailer
+    const trailer = document.createElement("div");
+    trailer.style.position = "fixed";
+    trailer.style.width = "16px";
+    trailer.style.height = "16px";
+    trailer.style.borderRadius = "50%";
+    trailer.style.backgroundColor = "transparent";
+    trailer.style.border = "2px solid #00ffcc";
+    trailer.style.pointerEvents = "none";
+    trailer.style.zIndex = "99999";
+    trailer.style.transition = "width 0.2s, height 0.2s, background-color 0.2s, transform 0.1s ease-out";
+    trailer.style.transform = "translate(-50%, -50%)";
+    trailer.style.boxShadow = "0 0 12px #00ffcc, inset 0 0 12px #00ffcc";
+    document.body.appendChild(trailer);
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let trailerX = mouseX;
+    let trailerY = mouseY;
+
+    window.addEventListener("mousemove", (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    function animateTrailer() {
+        trailerX += (mouseX - trailerX) * 0.15;
+        trailerY += (mouseY - trailerY) * 0.15;
+        trailer.style.left = `${trailerX}px`;
+        trailer.style.top = `${trailerY}px`;
+        requestAnimationFrame(animateTrailer);
     }
-}
+    animateTrailer();
 
-if(document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", createParticles);
-} else {
-    createParticles();
-}
+    // Emphasize cursor on interactive elements
+    const setupInteractables = () => {
+        const interactables = document.querySelectorAll('button, a, input, canvas, table, .game-card');
+        interactables.forEach(el => {
+            if(el.dataset.trailerBound) return;
+            el.dataset.trailerBound = "true";
+            el.addEventListener('mouseenter', () => {
+                trailer.style.width = "40px";
+                trailer.style.height = "40px";
+                trailer.style.borderColor = "#b026ff";
+                trailer.style.backgroundColor = "rgba(176, 38, 255, 0.1)";
+                trailer.style.boxShadow = "0 0 15px #b026ff, inset 0 0 15px #b026ff";
+            });
+            el.addEventListener('mouseleave', () => {
+                trailer.style.width = "16px";
+                trailer.style.height = "16px";
+                trailer.style.borderColor = "#00ffcc";
+                trailer.style.backgroundColor = "transparent";
+                trailer.style.boxShadow = "0 0 12px #00ffcc, inset 0 0 12px #00ffcc";
+            });
+        });
+    };
+    setupInteractables();
+    
+    // observe DOM for new elements (in case game logic generates buttons dynamically)
+    new MutationObserver(() => setupInteractables()).observe(document.body, { childList: true, subtree: true });
 
-// Global click interactive logic: Ripple effect
-document.addEventListener("click", function(e) {
-    if(e.target.tagName === 'CANVAS' || e.target.tagName === 'BUTTON' || e.target.tagName === 'TD') {
-        let ripple = document.createElement('div');
+    // 2. Click Ripple Effect
+    document.addEventListener('click', (e) => {
+        const ripple = document.createElement('div');
         ripple.style.position = 'fixed';
         ripple.style.left = e.clientX + 'px';
         ripple.style.top = e.clientY + 'px';
-        ripple.style.width = '10px';
-        ripple.style.height = '10px';
-        ripple.style.background = 'transparent';
-        ripple.style.border = '2px solid #00f2fe';
+         ripple.style.width = '0px';
+        ripple.style.height = '0px';
         ripple.style.borderRadius = '50%';
+        ripple.style.background = 'transparent';
+        ripple.style.border = '2px solid #00ffcc';
         ripple.style.pointerEvents = 'none';
         ripple.style.transform = 'translate(-50%, -50%)';
-        ripple.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-        ripple.style.zIndex = '10000';
+        ripple.style.zIndex = '99998';
+        ripple.style.transition = 'all 0.6s cubic-bezier(0.25, 1, 0.5, 1)';
         document.body.appendChild(ripple);
-        
+
         requestAnimationFrame(() => {
-            ripple.style.width = '120px';
-            ripple.style.height = '120px';
+            ripple.style.width = '200px';
+            ripple.style.height = '200px';
+            ripple.style.borderWidth = '10px';
+            ripple.style.borderColor = '#b026ff';
             ripple.style.opacity = '0';
-            ripple.style.borderWidth = '15px';
-            ripple.style.borderColor = '#ff006e';
         });
-        
-        setTimeout(() => ripple.remove(), 500);
+
+        setTimeout(() => ripple.remove(), 600);
+    });
+
+    // 3. Dynamic Background Orbs
+    const createOrb = (color, delay) => {
+        const gl = document.createElement('div');
+        gl.className = 'ambient-glow';
+        gl.style.width = (Math.random() * 200 + 200) + 'px';
+        gl.style.height = gl.style.width;
+        gl.style.background = color;
+        gl.style.left = (Math.random() * 100) + 'vw';
+        gl.style.top = (Math.random() * 100) + 'vh';
+        gl.style.animationDelay = delay + 's';
+        document.body.appendChild(gl);
+    };
+    
+    createOrb('rgba(0, 255, 204, 0.15)', 0);
+    createOrb('rgba(176, 38, 255, 0.15)', 2);
+    createOrb('rgba(255, 0, 110, 0.1)', 4);
+    
+    // Smooth reveal for main container
+    const container = document.querySelector('.container') || document.body.children[0];
+    if(container && container.style) {
+        container.style.opacity = '0';
+        container.style.transform = 'translateY(30px)';
+        container.style.transition = 'all 1s ease-out';
+        setTimeout(() => {
+            container.style.opacity = '1';
+            container.style.transform = 'translateY(0)';
+        }, 100);
     }
 });
 </script>
