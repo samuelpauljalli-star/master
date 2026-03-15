@@ -30,7 +30,7 @@
         /* Canvas element for the game graphics */
         #gameCanvas {
             background: #ffffff; /* White background */
-            border-bottom: 3px solid #000000; /* Ground line */
+            border-bottom: 3px solid #00ffcc; box-shadow: 0 3px 15px rgba(0,255,204,0.5), inset 0 -3px 20px rgba(0,255,204,0.1); /* Ground line */
             display: block;
             margin: 0 auto;
         }
@@ -127,6 +127,8 @@ h1 {
 
 /* GLASSMORPHISM CONTAINERS */
 canvas, table, .container > div#game-board, .glass-panel {
+    transform: perspective(1000px) rotateX(10deg) scale(1.02) !important;
+    transform-origin: center center;
     transform: perspective(1000px) rotateX(8deg) scale(1.02) !important;
     transform-origin: bottom center;
     background: var(--glass-bg) !important;
@@ -385,7 +387,7 @@ a.back-btn-global:hover, a.back-home:hover {
                 
                 obstacles.push({
                     x: canvas.width,
-                    y: canvas.height - 3 - obsHeight, // 3px buffer from the ground line
+                    y: canvas.height - 3 - obsHeight - 70, // 3px buffer from the ground line
                     width: obsWidth,
                     height: obsHeight
                 });
@@ -464,7 +466,7 @@ a.back-btn-global:hover, a.back-home:hover {
         }
         
         // Initialize the player's starting Y position
-        player.groundY = canvas.height - player.height - 3; // 3px buffer from the ground line
+        player.groundY = canvas.height - player.height - 3 - 70; // 3px buffer from the ground line
 
         // --- End of JAVASCRIPT LOGIC ---
     </script>
