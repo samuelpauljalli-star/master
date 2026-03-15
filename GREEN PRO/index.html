@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Environment for Healthy Community | Smart Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Outfit:wght@400;600;800&family=Caveat:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #4ADE80;
+            --primary-dark: #16A34A;
+            --primary-glow: rgba(74, 222, 128, 0.4);
+            --bg-card: rgba(2, 44, 34, 0.65);
+            --border: rgba(74, 222, 128, 0.25);
+            --border-bright: rgba(74, 222, 128, 0.6);
+            --text-main: #ECFDF5;
+            --text-muted: #A7F3D0;
+            --text-sub: #D1FAE5;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            position: relative;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            width: 40vw;
+            height: 40vw;
+            background-image: radial-gradient(circle, rgba(163, 230, 53, 0.1) 0%, transparent 60%);
+            z-index: -1;
+            border-radius: 50%;
+            animation: floatGlow 15s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+
+        body::before {
+            top: -10%;
+            left: -10%;
+        }
+
+        body::after {
+            bottom: -10%;
+            right: -10%;
+            animation-duration: 25s;
+            animation-direction: alternate-reverse;
+            background-image: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 60%);
+        }
+
+        @keyframes floatGlow {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(80px, 80px) scale(1.2);
+            }
+        }
+
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .auth-box {
+            width: 100%;
+            max-width: 450px;
+            padding: 3rem;
+            text-align: center;
+            border-radius: 30px;
+            background: rgba(2, 44, 34, 0.55);
+            border-top: 2px solid rgba(163, 230, 53, 0.4);
+            border-bottom: 2px solid rgba(16, 185, 129, 0.2);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(22, 163, 74, 0.2);
+            animation: breathe 8s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+
+            0%,
+            100% {
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(22, 163, 74, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 60px rgba(163, 230, 53, 0.25);
+            }
+        }
+
+        .role-btn {
+            displ                         ay: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+            padding: 1.5rem;
+            margin-bottom: 1.2rem;
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.7), rgba(2, 44, 34, 0.9));
+            border: 1px solid var(--border);
+            border-radius: 20px 8px 20px 8px;
+            /* Leaf-like shape */
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .role-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(163, 230, 53, 0.2), transparent);
+            transform: skewX(-20deg);
+            transition: 0.5s;
+        }
+
+        .role-btn:hover::before {
+            left: 150%;
+        }
+
+        .role-btn:hover {
+            transform: scale(1.05) translateY(-3px);
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.9), rgba(22, 163, 74, 0.5));
+            box-shadow: 0 8px 25px rgba(74, 222, 128, 0.25);
+            border-radius: 8px 20px 8px 20px;
+            /* Toggle shape */
+        }
+
+        .role-btn i {
+            font-size: 2rem;
+            color: #A3E635;
+            transition: all 0.4s;
+            filter: drop-shadow(0 0 8px rgba(163, 230, 53, 0.4));
+        }
+
+        .role-btn:hover i {
+            transform: rotate(15deg) scale(1.15);
+            color: #F8FAFC;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .college-marquee {
+            width: 100%;
+            background: linear-gradient(90deg, rgba(6, 78, 59, 0.8), rgba(2, 44, 34, 0.8), rgba(6, 78, 59, 0.8));
+            backdrop-filter: blur(10px);
+            color: #A3E635;
+            font-family: 'Comfortaa', cursive;
+            font-size: 1.1rem;
+            padding: 14px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            overflow: hidden;
+            font-weight: 700;
+            letter-spacing: 3px;
+            border-bottom: 2px solid var(--primary-dark);
+            text-shadow: 0 0 8px rgba(163, 230, 53, 0.6);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .marquee-content {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 20s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(100%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        @keyframes multicolor-text {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes logo-entrance {
+            0% {
+                transform: scale(0) rotate(-10deg);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes logo-float {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-5px) rotate(2deg);
+            }
+        }
+
+        .animated-logo {
+            animation: logo-entrance 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, logo-float 6s ease-in-out infinite 0.8s;
+            height: 140px;
+            object-fit: contain;
+            margin: 0 auto 1.5rem auto;
+            display: block;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+
+        .animated-title {
+            font-family: 'Caveat', cursive;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 0px;
+            letter-spacing: 2px;
+            line-height: 1.1;
+            background-image: linear-gradient(270deg, #4ADE80, #A3E635, #FDE047, #34D399, #4ADE80);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 5px 20px rgba(74, 222, 128, 0.6);
+            animation: multicolor-text 6s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        .animated-title:hover {
+            animation: bounce-gentle 2s ease infinite;
+        }
+
+        @keyframes bounce-gentle {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .animated-title {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="college-marquee">
+        <div class="marquee-content">
+            ANDHRA LOYOLA INSTITUTE OF ENGINEERING AND TECHNOLOGY &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;
+            ANDHRA LOYOLA INSTITUTE OF ENGINEERING AND TECHNOLOGY &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;
+            ANDHRA LOYOLA INSTITUTE OF ENGINEERING AND TECHNOLOGY
+        </div>
+    </div>
+
+    <div class="login-container" style="margin-top: 50px;">
+        <!-- Main Selector -->
+        <div id="role-selector" class="auth-box glass-panel animate-in">
+            <img src="./loyola_logo.png" alt="Loyola College Logo" class="animated-logo">
+            <h1 class="animated-title">
+                GREEN ENVIRONMENT FOR HEALTHY COMMUNITY</h1>
+            <p
+                style="color: var(--text-muted); font-size: 1.25rem; margin-top: 0.2rem; margin-bottom: 2rem; font-family: 'Comfortaa', cursive; font-weight: 600;">
+                Smart
+                Governance for a Greener Tomorrow <i data-lucide="leaf"
+                    style="display:inline-block; width:18px; color:var(--primary); vertical-align:middle; animation: logo-float 4s infinite ease-in-out;"></i>
+            </p>
+
+            <button class="role-btn" onclick="showAuth('citizen')">
+                <i data-lucide="user"></i>
+                <div>
+                    <div style="font-weight: 700;">Citizen</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Report hazards in your area</div>
+                </div>
+            </button>
+
+            <button class="role-btn" onclick="showAuth('employee')">
+                <i data-lucide="hard-hat" style="color: var(--land);"></i>
+                <div>
+                    <div style="font-weight: 700;">Employee</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">View and execute field missions</div>
+                </div>
+            </button>
+
+            <button class="role-btn" onclick="showAuth('admin')">
+                <i data-lucide="shield-check" style="color: var(--o2);"></i>
+                <div>
+                    <div style="font-weight: 700;">Administrator</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Global governance & AI analytics</div>
+                </div>
+            </button>
+        </div>
+
+        <!-- Auth Form -->
+        <div id="auth-form" class="auth-box glass-panel hidden animate-in">
+            <button class="back-btn" onclick="showRoleSelector()"><i data-lucide="arrow-left"></i> Back</button>
+            <img src="https://img.freepik.com/premium-vector/green-labels_54199-399.jpg?semt=ais_rp_progressive&w=740&q=80"
+                class="logo-img" style="margin: 2rem 0;">
+            <h2 id="form-title" style="margin-bottom: 1.5rem;">Citizen Login</h2>
+
+            <div id="citizen-fields" class="form-group hidden">
+                <input type="text" id="citizen-name" class="form-input" placeholder="Your Full Name"
+                    style="margin-bottom: 12px;">
+                <input type="tel" id="citizen-phone" class="form-input" placeholder="Mobile Number"
+                    style="margin-bottom: 12px;">
+            </div>
+
+            <div id="admin-fields" class="form-group hidden">
+                <input type="email" id="admin-email" class="form-input" placeholder="Official Email (gmail.com)"
+                    style="margin-bottom: 12px;">
+                <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 12px;">Restricted to authorized
+                    administrator email.</p>
+            </div>
+
+            <div id="employee-fields" class="form-group hidden">
+                <input type="number" id="employee-id" class="form-input" placeholder="Employee Number (e.g., 25001)"
+                    style="margin-bottom: 12px;">
+                <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 12px;">Enter the unique Employee
+                    Number
+                    provided by your supervisor.</p>
+            </div>
+
+            <button class="btn-primary" onclick="handleLogin()" style="width: 100%; margin-top: 1rem;">Verify &
+                Enter</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCrD-ANyuN5Q-AeX5hT1dwHoP2JVfSjSts",
+            authDomain: "green-healthy-community.firebaseapp.com",
+            projectId: "green-healthy-community",
+            storageBucket: "green-healthy-community.firebasestorage.app",
+            messagingSenderId: "804106732475",
+            appId: "1:804106732475:web:f79352d6f943002cabba9e",
+            measurementId: "G-6XGHDTTQ5X"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        lucide.createIcons();
+        let currentRole = '';
+
+        function showAuth(role) {
+            currentRole = role;
+            document.getElementById('role-selector').classList.add('hidden');
+            document.getElementById('auth-form').classList.remove('hidden');
+
+            // Toggle fields
+            document.getElementById('citizen-fields').classList.add('hidden');
+            document.getElementById('admin-fields').classList.add('hidden');
+            document.getElementById('employee-fields').classList.add('hidden');
+
+            const title = document.getElementById('form-title');
+            if (role === 'citizen') {
+                title.innerText = 'Citizen Portal Access';
+                document.getElementById('citizen-fields').classList.remove('hidden');
+            } else if (role === 'admin') {
+                title.innerText = 'Admin Security Gate';
+                document.getElementById('admin-fields').classList.remove('hidden');
+            } else if (role === 'employee') {
+                title.innerText = 'Field Force Auth';
+                document.getElementById('employee-fields').classList.remove('hidden');
+            }
+        }
+
+        function showRoleSelector() {
+            document.getElementById('auth-form').classList.add('hidden');
+            document.getElementById('role-selector').classList.remove('hidden');
+        }
+
+        async function handleLogin() {
+            if (currentRole === 'admin') {
+                const email = document.getElementById('admin-email').value;
+                if (email === 'samuelpauljalli@gmail.com') {
+                    location.href = 'admin.html';
+                } else {
+                    location.href = 'wrong-details.html';
+                }
+            } else if (currentRole === 'citizen') {
+                const name = document.getElementById('citizen-name').value;
+                const phone = document.getElementById('citizen-phone').value;
+                if (name && phone) {
+                    localStorage.setItem('user_details', JSON.stringify({ name, phone, role: 'citizen' }));
+                    location.href = 'citizen.html';
+                } else {
+                    alert('Please enter both name and mobile number.');
+                }
+            } else if (currentRole === 'employee') {
+                const empId = document.getElementById('employee-id').value.trim().toUpperCase();
+                if (empId) {
+                    const btn = document.querySelector('.btn-primary');
+                    btn.innerText = "Verifying...";
+                    btn.disabled = true;
+                    try {
+                        const docRef = await db.collection("employees").doc(empId).get();
+                        if (docRef.exists) {
+                            localStorage.setItem('user_details', JSON.stringify({ empId, role: 'worker', name: docRef.data().name }));
+                            location.href = 'employee.html';
+                        } else {
+                            location.href = 'wrong-details.html';
+                        }
+                    } catch (e) {
+                        alert('Error connecting to database. Please check your connection.');
+                        console.error(e);
+                    }
+                    btn.innerText = "Verify & Enter";
+                    btn.disabled = false;
+                } else {
+                    alert('Please enter your Employee ID.');
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
