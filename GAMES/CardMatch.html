@@ -313,6 +313,50 @@ a.back-btn-global:hover, a.back-home:hover {
 }
 </style>
 
+
+<style id="game-upgrade-styles">
+
+/* CARD MATCH UPGRADE */
+#game-board, .game-grid, .card-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 100px) !important;
+    gap: 12px !important; margin: 20px auto !important;
+    background: transparent !important; border: none !important;
+    transform: none !important; backdrop-filter: none !important;
+    box-shadow: none !important; border-radius: 0 !important;
+    width: fit-content !important;
+}
+.card, .memory-card {
+    width: 100px !important; height: 100px !important;
+    border-radius: 16px !important; cursor: pointer;
+    font-size: 2.8rem !important;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(15,15,30,0.9) !important;
+    border: 2px solid rgba(0,255,204,0.2) !important;
+    transition: all 0.4s cubic-bezier(.68,-0.55,.265,1.55) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+    user-select:none;
+    perspective: 600px;
+}
+.card.flipped, .card.matched {
+    background: rgba(0,30,25,0.9) !important;
+    border-color: rgba(0,255,204,0.6) !important;
+    box-shadow: 0 0 20px rgba(0,255,204,0.3) !important;
+}
+.card.matched { background:rgba(0,60,30,0.9) !important; animation: cardMatch 0.5s ease; }
+@keyframes cardMatch {
+    0%{transform:scale(1)} 50%{transform:scale(1.2)} 100%{transform:scale(1)}
+}
+.card:hover:not(.flipped):not(.matched) {
+    border-color: rgba(0,255,204,0.5) !important;
+    transform: translateY(-4px) scale(1.05) !important;
+}
+#moves-display, #score-display, #timer-display {
+    font-family:'Space Mono',monospace !important; font-size:1.1rem !important;
+    color:#00ffcc !important;
+}
+
+</style>
 </head>
 <body>
 <a href="index.html" class="back-btn-global">🔙 Back to Games</a>
@@ -561,5 +605,87 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+
+<script id="game-upgrade-logic">
+
+// ── CARD MATCH UPGRADE ──────────────────────────────────────────
+(function(){
+    const EMOJIS=['🦊','🐼','🦁','🐸','🦋','🐙','🦄','🐬',
+                  '🦅','🐲','🌟','🍕','🎸','🚀','💎','🎭'];
+    const PAIRS=8;
+    let cards=[], flipped=[], matched=0, moves=0, lockBoard=false, timer=null, secs=0;
+
+    const boardEl = document.getElementById('game-board')||document.querySelector('.game-grid')||document.querySelector('.card-grid');
+    const statusEl= document.getElementById('status')||document.getElementById('status-message');
+    const movesEl = document.getElementById('moves')||document.getElementById('moves-display');
+
+    // Stats bar
+    const stats=document.createElement('div');
+    stats.style.cssText='display:flex;gap:24px;justify-content:center;font-family:Space Mono,monospace;font-size:1rem;color:#b3b3b3;margin:8px 0;';
+    stats.innerHTML=`<span>⏱ <span id="cm-time">0</span>s</span>
+                     <span>🔄 Moves: <span id="cm-moves">0</span></span>
+                     <span>✅ Pairs: <span id="cm-pairs">0</span>/${PAIRS}</span>`;
+    if(boardEl) boardEl.parentNode.insertBefore(stats, boardEl);
+
+    function shuffle(arr){ return arr.sort(()=>Math.random()-0.5); }
+
+    function buildBoard(){
+        if(!boardEl) return;
+        boardEl.innerHTML=''; cards=[]; flipped=[]; matched=0; moves=0; lockBoard=false;
+        clearInterval(timer); secs=0;
+        document.getElementById('cm-time').textContent=0;
+        document.getElementById('cm-moves').textContent=0;
+        document.getElementById('cm-pairs').textContent=0;
+        if(statusEl) statusEl.textContent='🃏 Find all matching pairs!';
+
+        const pool=shuffle([...EMOJIS.slice(0,PAIRS),...EMOJIS.slice(0,PAIRS)]);
+        pool.forEach((em,i)=>{
+            const card=document.createElement('div');
+            card.className='card'; card.dataset.em=em; card.dataset.i=i;
+            card.textContent='❓'; card.style.fontSize='2.8rem';
+            card.addEventListener('click',cardClick);
+            boardEl.appendChild(card); cards.push(card);
+        });
+        timer=setInterval(()=>{ secs++; document.getElementById('cm-time').textContent=secs; },1000);
+    }
+
+    function cardClick(){
+        if(lockBoard||this.classList.contains('matched')||flipped.includes(this)) return;
+        this.textContent=this.dataset.em; this.classList.add('flipped');
+        flipped.push(this);
+        if(flipped.length===2) checkMatch();
+    }
+
+    function checkMatch(){
+        lockBoard=true; moves++;
+        document.getElementById('cm-moves').textContent=moves;
+        const [a,b]=flipped;
+        if(a.dataset.em===b.dataset.em){
+            a.classList.add('matched'); b.classList.add('matched');
+            matched++; document.getElementById('cm-pairs').textContent=matched;
+            flipped=[]; lockBoard=false;
+            if(matched===PAIRS){
+                clearInterval(timer);
+                if(statusEl) statusEl.textContent=`🎉 Completed in ${moves} moves & ${secs}s!`;
+            }
+        } else {
+            setTimeout(()=>{
+                a.textContent='❓'; b.textContent='❓';
+                a.classList.remove('flipped'); b.classList.remove('flipped');
+                flipped=[]; lockBoard=false;
+            },900);
+        }
+    }
+
+    // Hook reset buttons
+    document.querySelectorAll('button').forEach(btn=>{
+        const t=btn.textContent.toLowerCase();
+        if(t.includes('new')||t.includes('reset')||t.includes('restart')||t.includes('play')||t.includes('start'))
+            btn.onclick=buildBoard;
+    });
+    buildBoard();
+})();
+
+</script>
 </body>
 </html>

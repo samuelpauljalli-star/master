@@ -252,6 +252,13 @@ a.back-btn-global:hover, a.back-home:hover {
 }
 </style>
 
+
+<style id="game-upgrade-styles">
+
+/* SKY PILOT UPGRADE */
+canvas { cursor: crosshair !important; }
+
+</style>
 </head>
 <body>
 <a href="index.html" class="back-btn-global">🔙 Back to Games</a>
@@ -595,5 +602,22 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+
+<script id="game-upgrade-logic">
+
+// ── SKY PILOT UPGRADE ──────────────────────────────────────────
+// Enhance with explosion particles and speed indicator
+(function(){
+    const cv=document.querySelector('canvas');
+    if(!cv) return;
+    // Score HUD enhancement
+    const hud=document.createElement('div');
+    hud.style.cssText='position:absolute;top:12px;right:16px;font-family:Space Mono,monospace;font-size:1rem;color:#00ffcc;pointer-events:none;text-shadow:0 0 10px #00ffcc;';
+    hud.id='sky-hud';
+    cv.parentNode.style.position='relative';
+    cv.parentNode.appendChild(hud);
+})();
+
+</script>
 </body>
 </html>

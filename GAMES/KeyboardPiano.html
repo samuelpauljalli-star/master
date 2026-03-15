@@ -273,6 +273,31 @@ a.back-btn-global:hover, a.back-home:hover {
 }
 </style>
 
+
+<style id="game-upgrade-styles">
+
+/* PIANO UPGRADE */
+.key, .piano-key, [class*="white"], [class*="black"] {
+    transition: all 0.12s ease !important;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.5) !important;
+}
+.key.active, .piano-key.active, .key:active {
+    transform: translateY(5px) scale(0.96) !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.7) !important;
+    filter: brightness(1.4) !important;
+}
+#note-display {
+    font-size: 3rem; font-family:'Space Mono',monospace;
+    color: #00ffcc; text-shadow: 0 0 30px #00ffcc;
+    min-height: 4rem; text-align:center; margin:10px 0;
+    animation: notePop 0.3s ease;
+}
+@keyframes notePop {
+    0%{transform:scale(0.7);opacity:0.5} 100%{transform:scale(1);opacity:1}
+}
+#piano-keyboard { display:flex; justify-content:center; position:relative; margin:20px auto; }
+
+</style>
 </head>
 <body>
 <a href="index.html" class="back-btn-global">🔙 Back to Games</a>
@@ -589,5 +614,37 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+
+<script id="game-upgrade-logic">
+
+// ── PIANO UPGRADE ──────────────────────────────────────────
+(function(){
+    // Note display
+    const nd=document.createElement('div'); nd.id='note-display'; nd.textContent='🎹';
+    const container=document.querySelector('.container');
+    if(container){ const h1=container.querySelector('h1'); if(h1) h1.after(nd); }
+
+    const NOTE_NAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+    const NOTE_EMOJI={'C':'🎵','D':'🎶','E':'🎼','F':'🎸','G':'🎺','A':'🎻','B':'🥁'};
+
+    // Intercept audio play to show note name
+    const origPlay=AudioContext?null:null;
+    // Listen for key presses on piano keys
+    document.querySelectorAll('.key,[class*="key"],[data-note]').forEach(key=>{
+        key.addEventListener('mousedown',()=>{
+            const note=key.dataset.note||key.dataset.key||key.className.match(/note-([A-G]#?\d)/i)?.[1]||'';
+            if(note){
+                const base=note.replace(/\d/,'');
+                nd.textContent=(NOTE_EMOJI[base]||'🎵')+' '+note;
+                nd.style.animation='none'; void nd.offsetWidth; nd.style.animation='notePop 0.3s ease';
+            }
+            key.classList.add('active');
+        });
+        key.addEventListener('mouseup',()=>key.classList.remove('active'));
+        key.addEventListener('mouseleave',()=>key.classList.remove('active'));
+    });
+})();
+
+</script>
 </body>
 </html>

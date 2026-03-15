@@ -263,6 +263,47 @@ a.back-btn-global:hover, a.back-home:hover {
 }
 </style>
 
+
+<style id="game-upgrade-styles">
+
+/* RPC UPGRADE: Big emoji arena */
+.choices { display:flex; gap:18px; justify-content:center; flex-wrap:wrap; margin:20px 0 !important; }
+.choice-btn {
+    font-size: 3.5rem !important;
+    padding: 16px 24px !important;
+    border-radius: 20px !important;
+    background: rgba(15,15,30,0.9) !important;
+    border: 2px solid rgba(0,255,204,0.3) !important;
+    cursor: pointer; transition: all 0.25s !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+}
+.choice-btn:hover {
+    transform: scale(1.15) translateY(-6px) !important;
+    border-color: #00ffcc !important;
+    box-shadow: 0 0 30px rgba(0,255,204,0.4) !important;
+}
+#rpc-arena {
+    display:flex; gap:40px; justify-content:center; align-items:center;
+    font-size:5rem; margin:20px 0; min-height:7rem;
+}
+.rpc-icon { transition: all 0.4s cubic-bezier(.68,-0.55,.27,1.55); display:inline-block; }
+.rpc-icon.bounce { animation: rpcBounce 0.5s; }
+@keyframes rpcBounce {
+    0%{transform:scale(0.4) rotate(-20deg);opacity:0}
+    70%{transform:scale(1.2) rotate(5deg)}
+    100%{transform:scale(1) rotate(0);opacity:1}
+}
+#result {
+    font-size:1.5rem !important; font-family:'Space Mono',monospace !important;
+    letter-spacing:2px; min-height:2.5rem;
+    padding:10px 24px; border-radius:30px;
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
+    margin:10px auto; display:inline-block;
+}
+#score { background:rgba(255,255,255,0.04) !important; border-radius:16px !important;
+    padding:12px 24px !important; font-family:'Space Mono',monospace; }
+
+</style>
 </head>
 <body>
 <a href="index.html" class="back-btn-global">🔙 Back to Games</a>
@@ -505,5 +546,60 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+
+<script id="game-upgrade-logic">
+
+// ── RPC UPGRADE ──────────────────────────────────────────
+(function(){
+    const EM={rock:'✊',paper:'📄',scissors:'✂️'};
+    const CHOICES=['rock','paper','scissors'];
+    let ps=0,cs=0;
+
+    const resultEl=document.getElementById('result');
+    const pScoreEl=document.getElementById('player-score');
+    const cScoreEl=document.getElementById('computer-score');
+
+    // Build arena
+    const arena=document.createElement('div'); arena.id='rpc-arena';
+    arena.innerHTML=`<div class="rpc-icon" id="rpc-player">🎮</div>
+                     <div style="color:#555;font-size:2rem">VS</div>
+                     <div class="rpc-icon" id="rpc-cpu">🤖</div>`;
+    const choicesDiv=document.querySelector('.choices');
+    choicesDiv.parentNode.insertBefore(arena, choicesDiv);
+
+    // Rewrite buttons
+    choicesDiv.innerHTML=CHOICES.map(c=>
+        `<button class="choice-btn" onclick="rpcPlay('${c}')">${EM[c]}<br><span style="font-size:0.8rem;font-family:'Space Mono',monospace">${c.toUpperCase()}</span></button>`
+    ).join('');
+    // hide old choice paras
+    ['player-choice','computer-choice'].forEach(id=>{
+        const el=document.getElementById(id); if(el) el.style.display='none';
+    });
+
+    window.rpcPlay = function(pc){
+        const cc=CHOICES[Math.floor(Math.random()*3)];
+        const pi=document.getElementById('rpc-player');
+        const ci=document.getElementById('rpc-cpu');
+        pi.textContent=EM[pc]; ci.textContent=EM[cc];
+        pi.classList.remove('bounce'); ci.classList.remove('bounce');
+        void pi.offsetWidth; pi.classList.add('bounce');
+        void ci.offsetWidth; ci.classList.add('bounce');
+
+        let msg='', col='#b3b3b3';
+        if(pc===cc){ msg="🤝 Draw!"; col='#ffcc00'; }
+        else if((pc==='rock'&&cc==='scissors')||(pc==='paper'&&cc==='rock')||(pc==='scissors'&&cc==='paper')){
+            msg=`🎉 You Win! ${EM[pc]} beats ${EM[cc]}`; ps++; col='#00ffcc';
+        } else {
+            msg=`😢 You Lose! ${EM[cc]} beats ${EM[pc]}`; cs++; col='#ff006e';
+        }
+        resultEl.textContent=msg; resultEl.style.color=col;
+        if(pScoreEl) pScoreEl.textContent=ps;
+        if(cScoreEl) cScoreEl.textContent=cs;
+    };
+    // override old function
+    window.playGame = window.rpcPlay;
+})();
+
+</script>
 </body>
 </html>

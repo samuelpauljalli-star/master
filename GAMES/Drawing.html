@@ -271,6 +271,40 @@ a.back-btn-global:hover, a.back-home:hover {
 }
 </style>
 
+
+<style id="game-upgrade-styles">
+
+/* DRAWING UPGRADE */
+#drawing-toolbar, .toolbar {
+    display: flex !important; gap: 12px !important; flex-wrap: wrap !important;
+    justify-content: center !important; margin: 12px auto !important;
+    padding: 12px 20px !important; background: rgba(15,15,25,0.9) !important;
+    border-radius: 16px !important; border: 1px solid rgba(0,255,204,0.2) !important;
+    max-width: 700px !important; transform: none !important;
+    backdrop-filter: blur(10px) !important; box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+}
+#drawCanvas, canvas {
+    border: 2px solid rgba(0,255,204,0.3) !important;
+    border-radius: 16px !important; cursor: crosshair !important;
+    box-shadow: 0 0 30px rgba(0,255,204,0.1) !important;
+}
+input[type=color] {
+    width: 44px !important; height: 44px !important;
+    border-radius: 50% !important; border: 2px solid rgba(255,255,255,0.3) !important;
+    cursor: pointer !important; padding: 2px !important;
+    background: none !important;
+}
+input[type=range] {
+    accent-color: #00ffcc !important;
+    width: 100px !important;
+}
+.tool-btn {
+    padding: 8px 16px !important; border-radius: 10px !important;
+    font-size: 0.9rem !important; cursor: pointer;
+}
+.tool-btn.active { border-color: #00ffcc !important; background: rgba(0,255,204,0.15) !important; }
+
+</style>
 </head>
 <body>
 <a href="index.html" class="back-btn-global">🔙 Back to Games</a>
@@ -502,5 +536,71 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+
+<script id="game-upgrade-logic">
+
+// ── DRAWING UPGRADE ──────────────────────────────────────────
+(function(){
+    // Add extra toolbar buttons if canvas exists
+    const cv=document.querySelector('#drawCanvas,canvas:not(#chessCanvas):not(#gameCanvas)');
+    if(!cv) return;
+    const ctx=cv.getContext('2d');
+
+    // Toolbar
+    let tb=document.querySelector('.toolbar,#drawing-toolbar,#toolbar');
+    if(!tb){ tb=document.createElement('div'); tb.id='drawing-toolbar'; cv.parentNode.insertBefore(tb,cv); }
+    tb.style.display='flex';
+
+    const extras=[
+        {label:'🖌️ Brush', id:'db-brush'},
+        {label:'⬜ Rect',   id:'db-rect'},
+        {label:'⭕ Circle', id:'db-circle'},
+        {label:'✏️ Erase',  id:'db-erase'},
+        {label:'🗑️ Clear',  id:'db-clear'},
+    ];
+    extras.forEach(({label,id})=>{
+        if(!document.getElementById(id)){
+            const btn=document.createElement('button'); btn.id=id; btn.textContent=label;
+            btn.className='tool-btn'; btn.style.margin='4px';
+            tb.appendChild(btn);
+        }
+    });
+
+    const clearBtn=document.getElementById('db-clear');
+    if(clearBtn) clearBtn.onclick=()=>{ ctx.clearRect(0,0,cv.width,cv.height); };
+
+    // If not already drawing, set up simple draw
+    if(!cv.dataset.upgraded){
+        cv.dataset.upgraded='1';
+        let drawing=false, lastX=0, lastY=0, tool='brush';
+        let strokeColor='#00ffcc', lineWidth=5;
+        ctx.strokeStyle=strokeColor; ctx.lineWidth=lineWidth; ctx.lineCap='round';
+
+        ['db-brush','db-rect','db-circle','db-erase'].forEach(id=>{
+            const btn=document.getElementById(id);
+            if(btn) btn.onclick=()=>{
+                tool=id.replace('db-','');
+                document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('active'));
+                btn.classList.add('active');
+            };
+        });
+
+        cv.addEventListener('mousedown',e=>{
+            drawing=true; [lastX,lastY]=[e.offsetX,e.offsetY];
+            ctx.beginPath(); ctx.moveTo(lastX,lastY);
+        });
+        cv.addEventListener('mousemove',e=>{
+            if(!drawing) return;
+            ctx.strokeStyle= tool==='erase' ? '#07070a' : strokeColor;
+            ctx.lineWidth  = tool==='erase' ? 30 : lineWidth;
+            ctx.lineTo(e.offsetX,e.offsetY); ctx.stroke();
+            [lastX,lastY]=[e.offsetX,e.offsetY];
+        });
+        cv.addEventListener('mouseup',  ()=>drawing=false);
+        cv.addEventListener('mouseleave',()=>drawing=false);
+    }
+})();
+
+</script>
 </body>
 </html>

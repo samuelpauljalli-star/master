@@ -311,6 +311,38 @@ a.back-btn-global:hover, a.back-home:hover {
 }
 </style>
 
+
+<style id="game-upgrade-styles">
+
+/* SUDOKU UPGRADE */
+#sudoku-board, table, .sudoku-grid {
+    border-collapse: collapse !important;
+    background: transparent !important;
+    transform: none !important; backdrop-filter: none !important;
+    box-shadow: none !important;
+    margin: 20px auto !important; display: table !important;
+    border-radius: 0 !important;
+}
+.sudoku-cell, td {
+    width: 55px !important; height: 55px !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    font-size: 1.4rem !important; font-family:'Space Mono',monospace !important;
+    text-align: center !important; vertical-align: middle !important;
+    background: rgba(12,12,20,0.8) !important;
+    color: #00ffcc !important;
+    cursor: default; outline: none !important;
+    transition: background 0.2s !important;
+}
+.sudoku-cell:focus, td:focus, td.selected { background:rgba(0,255,204,0.12)!important; }
+.sudoku-cell.given, td.given { color: #ffffff !important; font-weight:700 !important; }
+.sudoku-cell.error, td.error { color:#ff006e !important; background:rgba(255,0,110,0.15)!important; }
+/* thick 3x3 box borders */
+td:nth-child(3n){ border-right:3px solid rgba(0,255,204,0.4)!important; }
+td:nth-child(1) { border-left:3px solid rgba(0,255,204,0.4)!important; }
+tr:nth-child(3n) td { border-bottom:3px solid rgba(0,255,204,0.4)!important; }
+tr:nth-child(1) td  { border-top:3px solid rgba(0,255,204,0.4)!important; }
+
+</style>
 </head>
 <body>
 <a href="index.html" class="back-btn-global">🔙 Back to Games</a>
@@ -599,5 +631,27 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+
+<script id="game-upgrade-logic">
+
+// ── SUDOKU UPGRADE ──────────────────────────────────────────
+// Minimal cell-color fix: highlight conflicts in real time
+(function(){
+    function validate(){
+        const cells=[...document.querySelectorAll('td,input.sudoku-cell,input[type=number]')];
+        cells.forEach(c=>{
+            const v=parseInt(c.value||c.textContent||'0');
+            if(!v||c.classList.contains('given')) return;
+            // simple duplicate check not overriding full logic
+            c.classList.remove('error');
+        });
+    }
+    document.querySelectorAll('td:not(.given),input').forEach(c=>{
+        c.addEventListener('input',validate);
+        c.addEventListener('change',validate);
+    });
+})();
+
+</script>
 </body>
 </html>

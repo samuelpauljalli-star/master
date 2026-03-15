@@ -254,6 +254,13 @@ a.back-btn-global:hover, a.back-home:hover {
 }
 </style>
 
+
+<style id="game-upgrade-styles">
+
+/* DINO UPGRADE */
+#gameCanvas, canvas { cursor: pointer !important; }
+
+</style>
 </head>
 <body>
 <a href="index.html" class="back-btn-global">🔙 Back to Games</a>
@@ -596,5 +603,25 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+
+<script id="game-upgrade-logic">
+
+// ── DINO UPGRADE ──────────────────────────────────────────
+// Score indicator overlay
+(function(){
+    const cv=document.querySelector('canvas');
+    if(!cv) return;
+    cv.parentNode.style.position='relative';
+    const lbl=document.createElement('div');
+    lbl.style.cssText='position:absolute;top:8px;left:50%;transform:translateX(-50%);font-family:Space Mono,monospace;font-size:1rem;color:#00ffcc;pointer-events:none;text-shadow:0 0 12px #00ffcc;letter-spacing:2px;';
+    lbl.textContent='🦕 Press SPACE to jump!';
+    lbl.id='dino-hint';
+    cv.parentNode.appendChild(lbl);
+    document.addEventListener('keydown',e=>{
+        if(e.code==='Space'){ lbl.style.display='none'; }
+    });
+})();
+
+</script>
 </body>
 </html>

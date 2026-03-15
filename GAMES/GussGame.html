@@ -276,6 +276,46 @@ a.back-btn-global:hover, a.back-home:hover {
 }
 </style>
 
+
+<style id="game-upgrade-styles">
+
+/* GUESS UPGRADE */
+input[type=number], input[type=text] {
+    background: rgba(15,15,25,0.9) !important;
+    border: 2px solid rgba(0,255,204,0.3) !important;
+    border-radius: 12px !important; color: #00ffcc !important;
+    font-size: 1.4rem !important; padding: 12px 20px !important;
+    font-family: 'Space Mono',monospace !important;
+    outline: none !important; text-align:center;
+    width: 180px !important;
+    transition: border-color 0.3s !important;
+}
+input:focus { border-color: #00ffcc !important; box-shadow: 0 0 20px rgba(0,255,204,0.3) !important; }
+#thermometer {
+    width: 220px; height: 18px; border-radius: 9px;
+    background: linear-gradient(90deg,#0ff,#b026ff,#ff006e);
+    margin: 14px auto; position: relative; overflow:hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+#thermo-fill {
+    position:absolute; top:0; left:0; height:100%;
+    width:50%; background:rgba(0,0,0,0.55);
+    transition: width 0.5s ease; border-radius:9px;
+}
+#guess-history {
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+    margin:12px 0; max-width:400px; margin-left:auto; margin-right:auto;
+}
+.guess-chip {
+    padding:4px 14px; border-radius:20px; font-family:'Space Mono',monospace;
+    font-size:0.85rem; font-weight:700;
+    border: 1px solid rgba(255,255,255,0.15);
+}
+.guess-chip.low  { background:rgba(0,50,255,0.3); color:#7ab3ff; }
+.guess-chip.high { background:rgba(255,50,0,0.3); color:#ff7a7a; }
+.guess-chip.win  { background:rgba(0,255,100,0.3); color:#00ffcc; }
+
+</style>
 </head>
 <body>
 <a href="index.html" class="back-btn-global">🔙 Back to Games</a>
@@ -505,5 +545,100 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+
+<script id="game-upgrade-logic">
+
+// ── GUESS UPGRADE ──────────────────────────────────────────
+(function(){
+    let secret=0, attempts=0, maxAttempts=10, guesses=[], gameOver=false;
+    let minR=1, maxR=100;
+
+    const statusEl  = document.getElementById('status-message')||document.getElementById('status')||document.getElementById('result');
+    const inputEl   = document.querySelector('input[type="number"]')||document.querySelector('input');
+    const container = document.querySelector('.container');
+
+    // Thermometer
+    const thermo=document.createElement('div'); thermo.id='thermometer';
+    thermo.innerHTML='<div id="thermo-fill"></div>';
+    // History
+    const hist=document.createElement('div'); hist.id='guess-history';
+
+    if(inputEl){
+        inputEl.after(thermo);
+        thermo.after(hist);
+    }
+
+    function newGame(){
+        secret=Math.floor(Math.random()*(maxR-minR+1))+minR;
+        attempts=0; guesses=[]; gameOver=false;
+        hist.innerHTML='';
+        if(inputEl){inputEl.value=''; inputEl.disabled=false; inputEl.placeholder='Enter 1-100';}
+        updateStatus(`🎯 Guess a number between ${minR} and ${maxR}. You have ${maxAttempts} tries!`,'#b3b3b3');
+        setThermo(50);
+    }
+
+    function setThermo(pct){
+        const fill=document.getElementById('thermo-fill');
+        if(fill) fill.style.width=(100-pct)+'%';
+    }
+
+    function updateStatus(msg,col='#00ffcc'){
+        if(statusEl){ statusEl.textContent=msg; statusEl.style.color=col; }
+    }
+
+    function makeGuess(val){
+        if(gameOver) return;
+        const n=parseInt(val);
+        if(isNaN(n)||n<minR||n>maxR){
+            updateStatus(`⚠️ Enter a number between ${minR} and ${maxR}!`,'#ffcc00'); return;
+        }
+        attempts++;
+        guesses.push(n);
+        const chip=document.createElement('span');
+        chip.className='guess-chip';
+        chip.textContent=n;
+        if(n===secret){
+            chip.classList.add('win');
+            hist.appendChild(chip);
+            updateStatus(`🎉 Correct! It was ${secret}! Solved in ${attempts} guess${attempts>1?'es':''}!`,'#00ffcc');
+            gameOver=true;
+            if(inputEl) inputEl.disabled=true;
+            setThermo(50);
+        } else {
+            const pct=Math.round(((n-minR)/(maxR-minR))*100);
+            setThermo(pct);
+            if(n<secret){
+                chip.classList.add('low');
+                updateStatus(`🔼 Too LOW! Go higher. (${maxAttempts-attempts} left)`,'#7ab3ff');
+            } else {
+                chip.classList.add('high');
+                updateStatus(`🔽 Too HIGH! Go lower. (${maxAttempts-attempts} left)`,'#ff7a7a');
+            }
+            hist.appendChild(chip);
+            if(attempts>=maxAttempts){
+                updateStatus(`💀 Game Over! It was ${secret}.`,'#ff006e');
+                gameOver=true;
+                if(inputEl) inputEl.disabled=true;
+            }
+        }
+        if(inputEl) inputEl.value='';
+    }
+
+    // Override submit buttons / forms
+    document.querySelectorAll('button').forEach(btn=>{
+        const t=btn.textContent.toLowerCase();
+        if(t.includes('guess')||t.includes('submit')||t.includes('check')){
+            btn.onclick=()=>{if(inputEl) makeGuess(inputEl.value);};
+        }
+        if(t.includes('new')||t.includes('reset')||t.includes('restart')||t.includes('play')){
+            btn.onclick=newGame;
+        }
+    });
+    if(inputEl) inputEl.addEventListener('keydown',e=>{ if(e.key==='Enter') makeGuess(inputEl.value); });
+
+    newGame();
+})();
+
+</script>
 </body>
 </html>

@@ -400,6 +400,29 @@ a.back-btn-global:hover, a.back-home:hover {
 }
 </style>
 
+
+<style id="game-upgrade-styles">
+
+/* INDEX UPGRADE: Game card icons */
+.game-card {
+    position:relative; overflow:hidden;
+    transition: all 0.4s cubic-bezier(0.25,0.8,0.25,1) !important;
+}
+.game-card::before {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(135deg,rgba(0,255,204,0.08),rgba(176,38,255,0.08));
+    opacity:0; transition:opacity 0.4s;
+}
+.game-card:hover::before { opacity:1; }
+.game-card:hover {
+    transform: translateY(-10px) scale(1.03) !important;
+    box-shadow: 0 20px 50px rgba(0,255,204,0.2), 0 0 0 1px rgba(0,255,204,0.3) !important;
+}
+.game-card .card-icon { font-size:3rem; margin-bottom:12px; display:block; }
+.game-card h2,.game-card h3 { font-family:'Space Mono',monospace !important; }
+.game-card p { font-size:0.9rem !important; }
+
+</style>
 </head>
 
 <body>
@@ -602,6 +625,33 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+
+<script id="game-upgrade-logic">
+
+// ── INDEX UPGRADE ──────────────────────────────────────────
+// Add emoji icons to each game card based on its link text
+(function(){
+    const MAP={
+        'chess':'♟️','car':'🏎️','dino':'🦕','draw':'🎨',
+        'card':'🃏','match':'🃏','guess':'🔢','piano':'🎹',
+        'rock':'✊','paper':'📄','scissors':'✂️','rpc':'✊',
+        'sky':'✈️','sudoku':'🔢','whack':'🔨','mole':'🐭',
+        'xo':'❌','tic':'❌','tac':'❌','breakout':'🧱','snake':'🐍'
+    };
+    document.querySelectorAll('.game-card,a[href$=".html"]:not(.back-btn-global)').forEach(card=>{
+        const text=(card.textContent||'').toLowerCase();
+        let chosen='🎮';
+        for(const [k,v] of Object.entries(MAP)){ if(text.includes(k)){chosen=v;break;} }
+        // If no icon span yet, add one
+        if(!card.querySelector('.card-icon')){
+            const icon=document.createElement('span');
+            icon.className='card-icon'; icon.textContent=chosen;
+            card.prepend(icon);
+        }
+    });
+})();
+
+</script>
 </body>
 
 </html>

@@ -279,6 +279,63 @@ a.back-btn-global:hover, a.back-home:hover {
 }
 </style>
 
+
+<style id="game-upgrade-styles">
+
+/* XO UPGRADE: Neon cells, emoji icons */
+#game-board {
+    display: grid !important;
+    grid-template-columns: repeat(3, 130px) !important;
+    grid-template-rows:    repeat(3, 130px) !important;
+    gap: 10px !important;
+    margin: 20px auto !important;
+    background: transparent !important;
+    border: none !important;
+    width: fit-content !important;
+    transform: none !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+.cell {
+    background: rgba(15,15,25,0.85) !important;
+    border: 2px solid rgba(0,255,204,0.25) !important;
+    border-radius: 18px !important;
+    font-size: 3.5rem !important;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+}
+.cell:hover:not(.taken) {
+    border-color: rgba(0,255,204,0.7) !important;
+    box-shadow: 0 0 22px rgba(0,255,204,0.35), inset 0 0 15px rgba(0,255,204,0.08) !important;
+    transform: scale(1.05) !important;
+}
+.cell.X { color: #00ffcc !important; text-shadow: 0 0 18px #00ffcc; }
+.cell.O { color: #ff006e !important; text-shadow: 0 0 18px #ff006e; }
+.cell.win-cell { animation: winPulse 0.6s ease-in-out infinite alternate; }
+@keyframes winPulse {
+    from { box-shadow: 0 0 10px rgba(255,215,0,0.4); }
+    to   { box-shadow: 0 0 40px rgba(255,215,0,0.9), inset 0 0 20px rgba(255,215,0,0.2); border-color: gold !important; }
+}
+#status {
+    font-size: 1.4rem !important; font-family: 'Space Mono',monospace !important;
+    color: #00ffcc !important; letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(0,255,204,0.5);
+    min-height: 2rem; margin: 12px 0;
+}
+#score-board {
+    display: flex; gap: 24px; justify-content: center;
+    font-family: 'Space Mono',monospace; font-size: 1rem;
+    color: #b3b3b3; margin: 8px 0 16px;
+}
+.score-box { padding: 8px 20px; border-radius: 30px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); }
+.score-box span { font-size: 1.5rem; font-weight: 800; }
+#mode-toggle { margin-bottom: 10px; }
+
+</style>
 </head>
 <body>
 <a href="index.html" class="back-btn-global">🔙 Back to Games</a>
@@ -542,5 +599,114 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+
+<script id="game-upgrade-logic">
+
+// ── XO UPGRADE ──────────────────────────────────────────
+(function(){
+    const EMPTY='', X='❌', O='⭕';
+    let cells=[], board=Array(9).fill(EMPTY), isX=true, gameOn=true;
+    let scores={X:0,O:0,draw:0}, vsAI=true;
+    const statusEl = document.getElementById('status');
+    const boardEl  = document.getElementById('game-board');
+
+    // Score board
+    const sb = document.createElement('div'); sb.id='score-board';
+    sb.innerHTML=`<div class="score-box">❌ <span id="sx">0</span></div>
+                  <div class="score-box">🤝 <span id="sd">0</span></div>
+                  <div class="score-box">⭕ <span id="so">0</span></div>`;
+    boardEl.parentNode.insertBefore(sb, boardEl);
+
+    // Mode toggle
+    const mt = document.createElement('div'); mt.id='mode-toggle';
+    mt.innerHTML=`<button onclick="xoToggleMode()">🤖 VS AI: ON</button>`;
+    boardEl.parentNode.insertBefore(mt, boardEl);
+    window.xoToggleMode = () => {
+        vsAI=!vsAI;
+        mt.querySelector('button').textContent = vsAI ? '🤖 VS AI: ON' : '👤 VS PLAYER';
+        xoReset();
+    };
+
+    const WINS=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+    function xoBuild(){
+        boardEl.innerHTML=''; cells=[];
+        board.fill(EMPTY); isX=true; gameOn=true;
+        statusEl.textContent="❌ Player's Turn";
+        for(let i=0;i<9;i++){
+            const c=document.createElement('div');
+            c.className='cell'; c.dataset.i=i;
+            c.addEventListener('click',xoClick);
+            boardEl.appendChild(c); cells.push(c);
+        }
+    }
+    function xoClick(e){
+        const i=+e.currentTarget.dataset.i;
+        if(!gameOn||board[i]!==EMPTY) return;
+        xoMark(i, isX?X:O);
+        if(gameOn && vsAI && !isX) setTimeout(xoAI, 350);
+    }
+    function xoMark(i, sym){
+        board[i]=sym; cells[i].textContent=sym;
+        cells[i].classList.add(sym==='❌'?'X':'O','taken');
+        const w=checkWin();
+        if(w){
+            w.forEach(j=>cells[j].classList.add('win-cell'));
+            const who = sym==='❌'?'❌ Player':'⭕ '+(vsAI?'AI':'Player');
+            statusEl.textContent=`🎉 ${who} Wins!`;
+            gameOn=false;
+            if(sym==='❌') scores.X++; else scores.O++;
+        } else if(board.every(c=>c!==EMPTY)){
+            statusEl.textContent='🤝 Draw!'; gameOn=false; scores.draw++;
+        } else {
+            isX=!isX;
+            statusEl.textContent= isX ? "❌ Player's Turn" : (vsAI?"🤖 AI thinking…":"⭕ Player's Turn");
+        }
+        document.getElementById('sx').textContent=scores.X;
+        document.getElementById('so').textContent=scores.O;
+        document.getElementById('sd').textContent=scores.draw;
+    }
+    function checkWin(){
+        for(const [a,b,c] of WINS)
+            if(board[a]!==EMPTY&&board[a]===board[b]&&board[b]===board[c]) return[a,b,c];
+        return null;
+    }
+    // Minimax AI
+    function xoAI(){
+        if(!gameOn) return;
+        let best=-Infinity,move=0;
+        for(let i=0;i<9;i++){
+            if(board[i]===EMPTY){
+                board[i]=O;
+                const s=minimax(board,0,false);
+                board[i]=EMPTY;
+                if(s>best){best=s;move=i;}
+            }
+        }
+        xoMark(move,O);
+    }
+    function minimax(b,depth,isMax){
+        const w=checkWin();
+        if(w) return isMax?-10+depth:10-depth;
+        if(b.every(c=>c!==EMPTY)) return 0;
+        let best=isMax?-Infinity:Infinity;
+        for(let i=0;i<9;i++){
+            if(b[i]===EMPTY){
+                b[i]=isMax?X:O;
+                const s=minimax(b,depth+1,!isMax);
+                b[i]=EMPTY;
+                best=isMax?Math.max(best,s):Math.min(best,s);
+            }
+        }
+        return best;
+    }
+    window.xoReset = xoBuild;
+    // Override existing reset
+    const rb=document.getElementById('reset-btn');
+    if(rb){ rb.textContent='🔄 New Game'; rb.onclick=xoBuild; }
+    xoBuild();
+})();
+
+</script>
 </body>
 </html>

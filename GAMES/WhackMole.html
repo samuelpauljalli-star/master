@@ -296,6 +296,48 @@ a.back-btn-global:hover, a.back-home:hover {
 }
 </style>
 
+
+<style id="game-upgrade-styles">
+
+/* WHACK UPGRADE */
+#game-board {
+    display: grid !important;
+    grid-template-columns: repeat(3,120px) !important;
+    grid-template-rows: repeat(3,120px) !important;
+    gap: 16px !important; margin: 20px auto !important;
+    background: rgba(10,8,5,0.85) !important;
+    border: 2px solid rgba(150,80,20,0.5) !important;
+    border-radius: 24px !important; padding: 20px !important;
+    box-shadow: 0 0 40px rgba(80,40,0,0.6) !important;
+    transform: none !important; backdrop-filter: none !important;
+    width: fit-content !important;
+}
+.hole {
+    width:120px !important; height:120px !important;
+    background: radial-gradient(ellipse at 50% 70%, #1a0d00 70%, #0d0700 100%) !important;
+    border-radius: 50% !important; border: 3px solid #3d1f00 !important;
+    box-shadow: inset 0 8px 20px rgba(0,0,0,0.8) !important;
+    overflow: hidden !important; position: relative !important;
+}
+.mole {
+    font-size: 3rem !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    width: 80% !important; height: 80% !important;
+    bottom: -90px !important; left: 10% !important;
+    border-radius: 0 !important;
+    transition: bottom 0.18s cubic-bezier(.34,1.56,.64,1) !important;
+    display: flex; align-items: center; justify-content: center;
+}
+.mole.up { bottom: 2px !important; }
+.mole.whacked { filter: brightness(3) hue-rotate(30deg) !important; }
+#score, #time {
+    font-size: 1.4rem !important; font-family:'Space Mono',monospace !important;
+    color: #ffcc00 !important; margin:6px 0 !important;
+    text-shadow: 0 0 12px rgba(255,200,0,0.5);
+}
+
+</style>
 </head>
 <body>
 <a href="index.html" class="back-btn-global">🔙 Back to Games</a>
@@ -576,5 +618,90 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+
+<script id="game-upgrade-logic">
+
+// ── WHACK UPGRADE ──────────────────────────────────────────
+(function(){
+    const MOLE_EMOJIS=['🐭','🐹','🐀','🐜','🐊'];
+    const HIT_EMOJIS =['💥','⭐','✨','💫'];
+    const scoreDispOld = document.getElementById('score-value');
+    const timeDispOld  = document.getElementById('time-value');
+    const board = document.getElementById('game-board');
+
+    // Extended time and speed with levels
+    let score=0, timeLeft=45, isRunning=false;
+    let timerID=null, popID=null, level=1, popInterval=700;
+
+    function pickMoleEmoji(){ return MOLE_EMOJIS[Math.floor(Math.random()*MOLE_EMOJIS.length)]; }
+
+    // Override createBoard to use emoji moles
+    window.createBoard = function(){
+        board.innerHTML='';
+        window._moles=[];
+        for(let i=0;i<9;i++){
+            const hole=document.createElement('div'); hole.className='hole';
+            const mole=document.createElement('div'); mole.className='mole';
+            mole.textContent=pickMoleEmoji();
+            mole.addEventListener('click',function(e){
+                if(!mole.classList.contains('up')||!isRunning) return;
+                score++;
+                if(scoreDispOld) scoreDispOld.textContent=score;
+                const hit=HIT_EMOJIS[Math.floor(Math.random()*HIT_EMOJIS.length)];
+                mole.textContent=hit;
+                mole.classList.remove('up');
+                setTimeout(()=>{ mole.textContent=pickMoleEmoji(); },200);
+                // Level up every 10 points
+                if(score>0&&score%10===0){
+                    level++;
+                    clearInterval(popID);
+                    popInterval=Math.max(300,700-level*50);
+                    popID=setInterval(randomMolePopUp,popInterval);
+                }
+            });
+            hole.appendChild(mole); board.appendChild(hole);
+            window._moles.push(mole);
+        }
+    };
+
+    function randomMolePopUp(){
+        if(!isRunning) return;
+        window._moles.forEach(m=>m.classList.remove('up'));
+        const n=Math.min(level,3);
+        const idxs=[...Array(9).keys()].sort(()=>Math.random()-0.5).slice(0,n);
+        idxs.forEach(i=>{
+            window._moles[i].classList.add('up');
+            const t=Math.random()*800+400;
+            setTimeout(()=>window._moles[i].classList.remove('up'),t);
+        });
+    }
+
+    window.startGame = function(){
+        if(isRunning) return;
+        score=0; timeLeft=45; level=1; popInterval=700; isRunning=true;
+        if(scoreDispOld){scoreDispOld.textContent=0;}
+        if(timeDispOld){timeDispOld.textContent=timeLeft;}
+        window.createBoard();
+        const sb=document.querySelector('button');
+        if(sb) sb.textContent='⏳ Game Running';
+        timerID=setInterval(()=>{
+            timeLeft--;
+            if(timeDispOld) timeDispOld.textContent=timeLeft;
+            if(timeLeft<=0){
+                clearInterval(timerID); clearInterval(popID);
+                isRunning=false;
+                window._moles.forEach(m=>m.classList.remove('up'));
+                if(sb){ sb.textContent='🔄 Play Again'; }
+                setTimeout(()=>alert(`⭐ Game Over!
+Score: ${score}
+Level reached: ${level}`),100);
+            }
+        },1000);
+        popID=setInterval(randomMolePopUp, popInterval);
+    };
+    window.createBoard();
+})();
+
+</script>
 </body>
 </html>
