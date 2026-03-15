@@ -255,8 +255,10 @@ a.back-btn-global:hover, a.back-home:hover {
 
         const boardSize  = 8;
         const squareSize = canvas.width / boardSize;
-        const lightColor = '#f0d9b5';
-        const darkColor  = '#b58863';
+
+        // Premium dark-walnut board theme
+        const lightColor = '#eed9a8';
+        const darkColor  = '#7a4a2a';
 
         const SYMBOLS = {
             'K':'♔','Q':'♕','R':'♖','B':'♗','N':'♘','P':'♙',
@@ -267,6 +269,36 @@ a.back-btn-global:hover, a.back-home:hover {
             'k':'black','q':'black','r':'black','b':'black','n':'black','p':'black'
         };
         const PIECE_NAMES = { K:'King', Q:'Queen', R:'Rook', B:'Bishop', N:'Knight', P:'Pawn' };
+
+        // ══════════════════════════════════════════════
+        // PRELOAD BEAUTIFUL SVG PIECE IMAGES (Lichess cburnett set)
+        // ══════════════════════════════════════════════
+        const BASE = 'https://lichess1.org/assets/piece/cburnett/';
+        const IMG_MAP = {
+            'K':'wK','Q':'wQ','R':'wR','B':'wB','N':'wN','P':'wP',
+            'k':'bK','q':'bQ','r':'bR','b':'bB','n':'bN','p':'bP'
+        };
+        const pieceImages = {};
+        let imagesLoaded = 0;
+        const TOTAL_IMAGES = 12;
+        let imagesReady = false;
+
+        function preloadImages(onDone) {
+            Object.entries(IMG_MAP).forEach(([key, fname]) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.src = BASE + fname + '.svg';
+                img.onload = () => {
+                    imagesLoaded++;
+                    if (imagesLoaded >= TOTAL_IMAGES) { imagesReady = true; onDone(); }
+                };
+                img.onerror = () => {
+                    imagesLoaded++; // still start the game even if one fails
+                    if (imagesLoaded >= TOTAL_IMAGES) { imagesReady = true; onDone(); }
+                };
+                pieceImages[key] = img;
+            });
+        }
 
         // ──────────── Game state ────────────
         let board, selected, currentTurn, legalDests, castling, epTarget, gameEnded;
@@ -470,22 +502,31 @@ a.back-btn-global:hover, a.back-home:hover {
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Board squares + labels
+            // Board squares
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
                     ctx.fillStyle = (r+c) % 2 === 0 ? lightColor : darkColor;
                     ctx.fillRect(c*squareSize, r*squareSize, squareSize, squareSize);
                 }
             }
+            // Board border glow
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,255,204,0.45)';
+            ctx.shadowBlur  = 30;
+            ctx.strokeStyle = 'rgba(0,255,204,0.30)';
+            ctx.lineWidth   = 4;
+            ctx.strokeRect(2, 2, canvas.width-4, canvas.height-4);
+            ctx.restore();
+
             // File / rank labels
             ctx.font = `bold ${squareSize*0.17}px 'Space Mono',monospace`;
             const files = 'abcdefgh', ranks = '87654321';
             for (let i = 0; i < 8; i++) {
                 ctx.fillStyle = i%2===0 ? darkColor : lightColor;
                 ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-                ctx.fillText(files[i], i*squareSize+3, 8*squareSize-3);
+                ctx.fillText(files[i], i*squareSize+4, 8*squareSize-4);
                 ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-                ctx.fillText(ranks[i], 3, i*squareSize+3);
+                ctx.fillText(ranks[i], 4, i*squareSize+4);
             }
 
             // Check highlight (king)
@@ -515,20 +556,41 @@ a.back-btn-global:hover, a.back-home:hover {
                 }
             }
 
-            // Pieces — draw with drop-shadow for depth
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            // Pieces — draw SVG icons with glow shadow
+            const pad = squareSize * 0.08;
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
                     const pk = board[r][c];
                     if (!pk) continue;
-                    const x = c * squareSize + squareSize / 2;
-                    const y = r * squareSize + squareSize / 2;
-                    ctx.font = `${squareSize * 0.72}px serif`;
-                    ctx.fillStyle = 'rgba(0,0,0,0.32)';
-                    ctx.fillText(SYMBOLS[pk], x + 2, y + 3);
-                    ctx.fillStyle = PIECE_COLOR[pk] === 'white' ? '#f5f5f5' : '#111';
-                    ctx.fillText(SYMBOLS[pk], x, y);
+                    const x = c * squareSize + pad;
+                    const y = r * squareSize + pad;
+                    const sz = squareSize - pad * 2;
+                    const img = pieceImages[pk];
+
+                    if (imagesReady && img && img.complete && img.naturalWidth > 0) {
+                        // Glow shadow — cyan for white pieces, magenta for black
+                        ctx.save();
+                        if (PIECE_COLOR[pk] === 'white') {
+                            ctx.shadowColor  = 'rgba(0, 220, 255, 0.55)';
+                            ctx.shadowBlur   = 14;
+                        } else {
+                            ctx.shadowColor  = 'rgba(180, 0, 255, 0.55)';
+                            ctx.shadowBlur   = 14;
+                        }
+                        ctx.drawImage(img, x, y, sz, sz);
+                        ctx.restore();
+                    } else {
+                        // Fallback: unicode symbol while images load
+                        ctx.save();
+                        ctx.font         = `${squareSize * 0.72}px serif`;
+                        ctx.textAlign    = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillStyle    = 'rgba(0,0,0,0.30)';
+                        ctx.fillText(SYMBOLS[pk], c*squareSize+squareSize/2+2, r*squareSize+squareSize/2+3);
+                        ctx.fillStyle    = PIECE_COLOR[pk] === 'white' ? '#f5f5f5' : '#111';
+                        ctx.fillText(SYMBOLS[pk], c*squareSize+squareSize/2, r*squareSize+squareSize/2);
+                        ctx.restore();
+                    }
                 }
             }
         }
@@ -623,8 +685,21 @@ a.back-btn-global:hover, a.back-home:hover {
         resetBtn.onclick = initBoard;
         document.querySelector('.container').appendChild(resetBtn);
 
-        // Start!
-        initBoard();
+        // Show loading state, then start after pieces are ready
+        statusDisplay.textContent = '⏳ Loading piece icons…';
+
+        // Draw loading screen while pieces load
+        ctx.fillStyle = darkColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#eed9a8';
+        ctx.font = "bold 28px 'Space Mono', monospace";
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Loading pieces…', canvas.width/2, canvas.height/2);
+
+        preloadImages(() => {
+            initBoard();
+        });
     </script>
 
 
