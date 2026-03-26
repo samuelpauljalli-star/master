@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day Details | IronPulse</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <h1>⚡ IronPulse <span>Performance</span></h1>
+        </div>
+        <nav class="app-nav">
+            <a href="index.html" class="nav-btn">Back to Tracker</a>
+        </nav>
+    </header>
+
+    <div class="container" style="margin-top: 30px;">
+        <h2 id="dayTitle" style="color: var(--accent-green); margin-bottom: 20px; font-size: 2.5rem;"></h2>
+        <h3 id="dayFocus" style="color: var(--text-white); margin-bottom: 30px; font-size: 1.5rem;"></h3>
+
+        <div class="main-grid">
+            <section class="card">
+                <h2><i class="icon">🏋️</i> Exercises</h2>
+                <div id="exercisesContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px;">
+                </div>
+            </section>
+            
+            <section class="card">
+                <h2><i class="icon">🥗</i> Meals for the Day</h2>
+                <ul id="mealsList" style="list-style: none; display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                </ul>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dataStr = sessionStorage.getItem('selectedDayData');
+            if (!dataStr) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            const data = JSON.parse(dataStr);
+            document.getElementById('dayTitle').innerText = data.day + " Routine";
+            document.getElementById('dayFocus').innerText = "Focus: " + data.focus;
+
+            const exs = document.getElementById('exercisesContainer');
+            data.workout.forEach(w => {
+                const div = document.createElement('div');
+                div.style.background = 'rgba(255,255,255,0.05)';
+                div.style.padding = '15px';
+                div.style.borderRadius = '12px';
+                div.style.border = '1px solid var(--border-color)';
+                div.style.textAlign = 'center';
+                
+                const qLower = w.toLowerCase();
+                const gifDB = {
+                    "squat": "https://media.giphy.com/media/13pHqR1yFjGaqA/giphy.gif",
+                    "bench press": "https://media.giphy.com/media/VbN4E5DweqQ00/giphy.gif",
+                    "deadlift": "https://media.giphy.com/media/3oz8xIfEQJzNqz4lGw/giphy.gif",
+                    "pushup": "https://media.giphy.com/media/xT8qBzoCG12TfRXYvS/giphy.gif",
+                    "plank": "https://media.giphy.com/media/8vFgqW1w2q4g22vR3K/giphy.gif",
+                    "lat pulldown": "https://media.giphy.com/media/l41YwOTodBweq1hxm/giphy.gif",
+                    "curl": "https://media.giphy.com/media/3o7budT11hWbH6f2F2/giphy.gif",
+                    "lunge": "https://media.giphy.com/media/3o7WIu4Qf2g6jTz5L2/giphy.gif",
+                    "treadmill": "https://media.giphy.com/media/3oKIPuTqVozxY2QkX6/giphy.gif",
+                    "yoga": "https://media.giphy.com/media/l0HlJOW2QAW7JcIti/giphy.gif",
+                    "cable": "https://media.giphy.com/media/26ufjOQO3VlY9o9XG/giphy.gif",
+                    "row": "https://media.giphy.com/media/1D7bQyH8a5uI8/giphy.gif",
+                    "press": "https://media.giphy.com/media/xT8qAYKxms5O4A1cHK/giphy.gif",
+                    "default": "https://media.giphy.com/media/xT8qBf7X46C4nB1Ljy/giphy.gif"
+                };
+
+                let mediaHtml = '';
+                let foundMatch = false;
+
+                for (let key in gifDB) {
+                    if (key !== "default" && qLower.includes(key)) {
+                        mediaHtml = `<img src="${gifDB[key]}" alt="${w}" style="width: 100%; border-radius: 8px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1);">`;
+                        foundMatch = true;
+                        break;
+                    }
+                }
+
+                if (!foundMatch) {
+                    // Fallback to a playable video with controls natively in the page
+                    // using a generic full body workout / technique tutorial embed
+                    mediaHtml = `
+                    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1);">
+                        <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+                            src="https://www.youtube.com/embed/U0bhE67HuDY?controls=1" 
+                            title="${w} Technique Video" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <p style="font-size: 0.75rem; color: #a0a0a8; margin-bottom: 8px;">🎥 Video tutorial loaded. Use controls to go backward/forward.</p>
+                    `;
+                }
+
+                div.innerHTML = `
+                    ${mediaHtml}
+                    <h4 style="color: var(--accent-blue); font-size: 1.1rem; margin-bottom: 5px;">${w}</h4>
+                    <span style="font-size: 0.8rem; color: var(--text-gray);">Focus: Form & Control</span>
+                `;
+                exs.appendChild(div);
+            });
+
+            const meals = document.getElementById('mealsList');
+            data.food.forEach(f => {
+                const li = document.createElement('li');
+                li.style.background = 'var(--glass)';
+                li.style.padding = '15px';
+                li.style.borderRadius = '8px';
+                li.innerHTML = `<span style="color: var(--accent-green); margin-right: 10px;">✔</span> ${f}`;
+                meals.appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>

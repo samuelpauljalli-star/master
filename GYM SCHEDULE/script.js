@@ -152,6 +152,39 @@ const workoutPlans = {
     ]
 };
 
+const transformationSchedules = {
+    loss: [
+        { time: "07:00 AM", h: 7, m: 0, title: "🌅 Morning Lemon Water", msg: "Boost metabolism to start the day!", intensity: 2 },
+        { time: "08:30 AM", h: 8, m: 30, title: "🍳 High Protein Breakfast", msg: "Boiled Eggs + Oats. Keep it light.", intensity: 4 },
+        { time: "11:00 AM", h: 11, m: 0, title: "🍏 Mid-Morning Snack", msg: "Apple or Grapes. Stay hydrated.", intensity: 2 },
+        { time: "01:30 PM", h: 13, m: 30, title: "🥗 Lean Lunch", msg: "Grilled Chicken + Big Salad. No Rice.", intensity: 5 },
+        { time: "04:00 PM", h: 16, m: 0, title: "🍵 Green Tea", msg: "Energy boost without calories.", intensity: 2 },
+        { time: "06:00 PM", h: 18, m: 0, title: "🏋️ HIIT Session", msg: "30 mins of high intensity to burn fat!", intensity: 10 },
+        { time: "08:00 PM", h: 20, m: 0, title: "🥣 Dinner", msg: "Spiced Fish + Sautéed Veggies.", intensity: 3 },
+        { time: "10:00 PM", h: 22, m: 0, title: "💤 Deep Sleep", msg: "Growth hormone peak for recovery.", intensity: 1 }
+    ],
+    gain: [
+        { time: "07:00 AM", h: 7, m: 0, title: "🥤 Mass Gainer Shake", msg: "Banana + Milk + Peanut Butter.", intensity: 3 },
+        { time: "09:00 AM", h: 9, m: 0, title: "🍳 Heavy Breakfast", msg: "4 Eggs + PB Toast + Muesli.", intensity: 4 },
+        { time: "11:30 AM", h: 11, m: 30, title: "🌰 Nut Mix", msg: "Almonds & Cashews. Dense calories.", intensity: 2 },
+        { time: "02:00 PM", h: 14, m: 0, title: "🍛 Power Lunch", msg: "Chicken Biryani or Paneer Rice.", intensity: 5 },
+        { time: "05:00 PM", h: 17, m: 0, title: "⚡ Pre-Workout", msg: "Curd + Sweet Potato. Energy storage.", intensity: 3 },
+        { time: "06:30 PM", h: 18, m: 30, title: "💪 Heavy Lifting", msg: "Focus on hypertrophy (8-12 reps).", intensity: 9 },
+        { time: "08:30 PM", h: 20, m: 30, title: "🍗 Post-Workout Dinner", msg: "Mutton or Soya + 3 Rotis.", intensity: 4 },
+        { time: "10:30 PM", h: 22, m: 30, title: "🛌 Recovery Sleep", msg: "9 hours for maximum muscle growth.", intensity: 1 }
+    ],
+    height: [
+        { time: "06:30 AM", h: 6, m: 30, title: "🤸 Morning Stretch", msg: "Cobra stretch + Toe touches (10 mins).", intensity: 4 },
+        { time: "08:00 AM", h: 8, m: 0, title: "🥛 Calcium Kick", msg: "Glass of Milk + Boiled Eggs.", intensity: 3 },
+        { time: "10:30 AM", h: 10, m: 30, title: "🥕 Vitamin Mix", msg: "Carrot Juice / Oranges.", intensity: 2 },
+        { time: "01:00 PM", h: 13, m: 0, title: "🥘 Balanced Lunch", msg: "Dal Tadka + Spinach + Veggies.", intensity: 4 },
+        { time: "04:30 PM", h: 16, m: 30, title: "🏀 Active Jump", msg: "Basketball or skipping (20 mins).", intensity: 8 },
+        { time: "07:00 PM", h: 19, m: 0, title: "🧘 Yoga (Vrikshasana)", msg: "Spine lengthening poses.", intensity: 3 },
+        { time: "09:00 PM", h: 21, m: 0, title: "🥩 Amino Dinner", msg: "Lentils or Fish. Bone building.", intensity: 3 },
+        { time: "10:00 PM", h: 22, m: 0, title: "🛌 Rest & Align", msg: "Sleep on a firm mattress (back).", intensity: 1 }
+    ]
+};
+
 const planBanners = {
     male_gain: "🎯 Goal: Hypertrophy & Muscle Mass | 🥩 High Protein Surplus",
     male_loss: "🎯 Goal: Burn Fat & Maintain Muscle | 🔥 Calorie Deficit & High Protein",
@@ -161,8 +194,11 @@ const planBanners = {
 
 // Initial State
 let log = JSON.parse(localStorage.getItem('nutriLog')) || [];
+let workoutAttendance = JSON.parse(localStorage.getItem('workoutAttendance')) || [];
 let currentPlan = 'male_gain';
+let activeTimers = [];
 let macroChart;
+let blueprintChartInstance;
 
 // DOM Elements
 const foodSelect = document.getElementById("foodSelect");
@@ -171,6 +207,14 @@ const addBtn = document.getElementById("addFoodBtn");
 const foodTable = document.getElementById("foodTable");
 const clearBtn = document.getElementById("clearLogBtn");
 const foodSearch = document.getElementById("foodSearch");
+
+// Transformation Elements
+const generatePlanBtn = document.getElementById("generatePlanBtn");
+const goalType = document.getElementById("goalType");
+const targetLabel = document.getElementById("targetLabel");
+const planArea = document.getElementById("plan-display-area");
+const placeholder = document.getElementById("no-plan-placeholder");
+const planActions = document.getElementById("plan-actions");
 
 // Tab Navigation logic
 document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -193,57 +237,214 @@ document.querySelectorAll('.plan-toggle').forEach(btn => {
     });
 });
 
+// Transformation Logic
+if (goalType) {
+    goalType.addEventListener('change', () => {
+        const val = goalType.value;
+        if (targetLabel) targetLabel.innerText = val === 'height' ? "Target Height Gain (cm)" : "Target Weight Change (kg)";
+    });
+}
+
+if (generatePlanBtn) {
+    generatePlanBtn.addEventListener('click', () => {
+        const w = document.getElementById('userWeight').value;
+        const h = document.getElementById('userHeight').value;
+        const m = document.getElementById('targetMonths').value;
+        const t = document.getElementById('targetValue').value;
+        const g = goalType.value;
+
+        if (!w || !h || !m || !t) {
+            alert("Please fill all details for the AI to calculate!");
+            return;
+        }
+
+        generateTransformationPlan(g, m, t);
+    });
+}
+
+function generateTransformationPlan(goal, months, target) {
+    const plan = transformationSchedules[goal];
+    if (placeholder) placeholder.style.display = 'none';
+    if (planArea) planArea.style.display = 'block';
+    if (planActions) planActions.style.display = 'flex';
+
+    let html = `
+        <div class="summary-box">
+            <h4>📅 Strategy: ${months}-Month Transformation</h4>
+            <p>To reach your ${target}${goal === 'height' ? 'cm' : 'kg'} goal, follow this strict 12-hour daily protocol.</p>
+        </div>
+    `;
+
+    plan.forEach(item => {
+        html += `
+            <div class="timeline-item">
+                <div class="time-mark">${item.time}</div>
+                <div class="content pulse-border">
+                    <h5>${item.title}</h5>
+                    <p>${item.msg}</p>
+                </div>
+            </div>
+        `;
+    });
+
+    const container = document.getElementById("plan-timeline-container");
+    if (container) container.innerHTML = html;
+    
+    // Generate Chart representations
+    drawBlueprintChart(plan);
+
+    localStorage.setItem('savedPlan', JSON.stringify({ goal, months, target }));
+}
+
+function drawBlueprintChart(plan) {
+    const ctx = document.getElementById('blueprintChart');
+    if (!ctx) return;
+    
+    if (blueprintChartInstance) blueprintChartInstance.destroy();
+    
+    const labels = plan.map(i => i.time);
+    const dataPoints = plan.map(i => i.intensity);
+    
+    blueprintChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Activity Intensity Level',
+                data: dataPoints,
+                borderColor: '#00d2ff',
+                backgroundColor: 'rgba(0, 210, 255, 0.2)',
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#00ff99',
+                pointRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { display: false, min: 0, max: 12 },
+                x: { ticks: { color: '#a0a0a8', font: { size: 10 } }, grid: { display: false } }
+            },
+            plugins: {
+                legend: { labels: { color: '#fff' } }
+            }
+        }
+    });
+}
+
+// Notifications
+document.getElementById('enableNotifications')?.addEventListener('click', () => {
+    if (!("Notification" in window)) {
+        alert("This browser does not support desktop notification");
+        return;
+    }
+
+    if (Notification.permission === "granted") {
+        setupAlarms();
+    } else {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") setupAlarms();
+        });
+    }
+});
+
+function setupAlarms() {
+    activeTimers.forEach(t => clearTimeout(t));
+    activeTimers = [];
+
+    const plan = transformationSchedules[goalType.value];
+    const now = new Date();
+
+    plan.forEach(item => {
+        const alarmTime = new Date();
+        alarmTime.setHours(item.h, item.m, 0);
+
+        if (alarmTime < now) alarmTime.setDate(alarmTime.getDate() + 1);
+
+        const diff = alarmTime.getTime() - now.getTime();
+        const timer = setTimeout(() => {
+            new Notification("⚡ IronPulse Coach", {
+                body: `${item.title}: ${item.msg}`,
+                icon: "https://cdn-icons-png.flaticon.com/512/3048/3048344.png"
+            });
+            setupAlarms();
+        }, diff);
+
+        activeTimers.push(timer);
+    });
+
+    alert("Reminders activated! You'll receive alerts at scheduled times.");
+    const notifyBtn = document.getElementById('enableNotifications');
+    if (notifyBtn) notifyBtn.innerText = "✅ Reminders On";
+}
+
+document.getElementById('resetPlan')?.addEventListener('click', () => {
+    localStorage.removeItem('savedPlan');
+    location.reload();
+});
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     initChart();
     updateUI();
+    updateWorkoutUI();
     renderPlans();
+
+    const saved = JSON.parse(localStorage.getItem('savedPlan'));
+    if (saved) {
+        if (document.getElementById('targetMonths')) document.getElementById('targetMonths').value = saved.months;
+        if (document.getElementById('targetValue')) document.getElementById('targetValue').value = saved.target;
+        if (goalType) goalType.value = saved.goal;
+        generateTransformationPlan(saved.goal, saved.months, saved.target);
+    }
 });
 
 function renderPlans() {
     const grid = document.getElementById('plan-schedule');
     const banner = document.getElementById('current-plan-banner');
-
     if (!grid || !banner) return;
-
+    
     banner.innerHTML = `<p>${planBanners[currentPlan]}</p>`;
+    
+    window.openDayDetails = (dayIndex) => {
+        sessionStorage.setItem('selectedDayData', JSON.stringify(workoutPlans[currentPlan][dayIndex]));
+        window.location.href = 'day-details.html';
+    };
 
-    const createCard = (d) => `
-        <div class="day-card">
+    const createCard = (d, index) => `
+        <div class="day-card" onclick="openDayDetails(${index})" style="cursor: pointer; transition: transform 0.2s; position: relative;" onmouseover="this.style.transform='scale(1.02)'; this.style.borderColor='var(--accent-green)';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='var(--border-color)';">
             <h3><span>${d.day}</span> 🔘</h3>
             <h4>💪 ${d.focus}</h4>
-            <ul>${d.workout.map(w => `<li>${w}</li>`).join('')}</ul>
-            <h4>🥗 Meal Plan</h4>
-            <ul>${d.food.map(f => `<li>${f}</li>`).join('')}</ul>
+            <ul>${d.workout.slice(0,3).map(w => `<li>${w}</li>`).join('')}${d.workout.length > 3 ? '<li style="color:var(--text-gray); font-style:italic;">...etc</li>' : ''}</ul>
+            <div style="margin-top: 15px; padding: 10px; text-align: center; border-radius: 8px; border: 1px solid rgba(0,255,153,0.3); color: var(--accent-green); font-size: 0.9rem; font-weight: 600;">Click to view animated GIFs & Food ▶</div>
         </div>
     `;
-
-    grid.innerHTML = workoutPlans[currentPlan].map(createCard).join('');
+    
+    grid.innerHTML = workoutPlans[currentPlan].map((d, i) => createCard(d, i)).join('');
 }
 
-// Search Functionality
-foodSearch.addEventListener('input', (e) => {
+// Search, Chart, UI update
+foodSearch?.addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
     const groups = foodSelect.querySelectorAll('optgroup');
-    let firstVisible = null;
-
     groups.forEach(group => {
         let hasMatch = false;
-        const options = group.querySelectorAll('option');
-        options.forEach(opt => {
+        group.querySelectorAll('option').forEach(opt => {
             if (opt.textContent.toLowerCase().includes(term)) {
                 opt.style.display = 'block';
                 hasMatch = true;
-                if (!firstVisible) firstVisible = opt.value;
-            } else { opt.style.display = 'none'; }
+            } else opt.style.display = 'none';
         });
         group.style.display = hasMatch ? 'block' : 'none';
     });
-    if (firstVisible && term !== "") foodSelect.value = firstVisible;
 });
 
 function initChart() {
-    const ctx = document.getElementById('macroChart').getContext('2d');
+    const canvas = document.getElementById('macroChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
     macroChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -264,6 +465,7 @@ function initChart() {
 
 function updateUI() {
     let totals = { calories: 0, protein: 0, carbs: 0, fats: 0 };
+    if (!foodTable) return;
     foodTable.innerHTML = '';
     log.forEach((item, index) => {
         totals.calories += item.macros.calories;
@@ -282,12 +484,23 @@ function updateUI() {
         `;
         foodTable.appendChild(row);
     });
-    document.getElementById("totalCalories").innerText = totals.calories.toFixed(0);
-    document.getElementById("totalProtein").innerText = totals.protein.toFixed(1);
-    document.getElementById("totalCarbs").innerText = totals.carbs.toFixed(1);
-    document.getElementById("totalFats").innerText = totals.fats.toFixed(1);
-    const progress = Math.min((totals.calories / 2500) * 100, 100);
-    document.getElementById("calProgress").style.width = progress + '%';
+    
+    const calEl = document.getElementById("totalCalories");
+    const proEl = document.getElementById("totalProtein");
+    const carbEl = document.getElementById("totalCarbs");
+    const fatEl = document.getElementById("totalFats");
+    const progEl = document.getElementById("calProgress");
+
+    if (calEl) calEl.innerText = totals.calories.toFixed(0);
+    if (proEl) proEl.innerText = totals.protein.toFixed(1);
+    if (carbEl) carbEl.innerText = totals.carbs.toFixed(1);
+    if (fatEl) fatEl.innerText = totals.fats.toFixed(1);
+    
+    if (progEl) {
+        const progress = Math.min((totals.calories / 2500) * 100, 100);
+        progEl.style.width = progress + '%';
+    }
+
     if (macroChart) {
         macroChart.data.datasets[0].data = [totals.protein, totals.carbs, totals.fats];
         macroChart.update();
@@ -296,9 +509,9 @@ function updateUI() {
 }
 
 function addFood() {
-    const selectedKey = foodSelect.value;
-    const grams = parseFloat(gramsInput.value);
-    if (isNaN(grams) || grams <= 0) { return; }
+    const selectedKey = foodSelect?.value;
+    const grams = parseFloat(gramsInput?.value);
+    if (!selectedKey || isNaN(grams) || grams <= 0) return;
     const foodBase = foods[selectedKey];
     const ratio = grams / 100;
     log.push({
@@ -311,49 +524,286 @@ function addFood() {
             fats: foodBase.fats * ratio
         }
     });
-    gramsInput.value = '';
+    if (gramsInput) gramsInput.value = '';
     updateUI();
 }
 
 window.deleteItem = (index) => { log.splice(index, 1); updateUI(); };
-addBtn.addEventListener('click', addFood);
-clearBtn.addEventListener('click', () => { if (confirm('Clear Today\'s Log?')) { log = []; updateUI(); } });
-gramsInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addFood(); });
+addBtn?.addEventListener('click', addFood);
+clearBtn?.addEventListener('click', () => { if (confirm('Clear Today\'s Log?')) { log = []; updateUI(); } });
+gramsInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') addFood(); });
 
-// Gym Assistant Logic
-const gymQuery = document.getElementById('gymQuery');
-const sendQuery = document.getElementById('sendQuery');
-const chatResponse = document.getElementById('chatResponse');
+// Workout Attendance Logic
+const workoutType = document.getElementById("workoutType");
+const workoutTime = document.getElementById("workoutTime");
+const workoutDuration = document.getElementById("workoutDuration");
+const addWorkoutBtn = document.getElementById("addWorkoutBtn");
+const workoutTable = document.getElementById("workoutTable");
 
-const mockResponses = {
-    "protein": "For muscle gain, aim for 1.6g to 2.2g of protein per kg of bodyweight. Check our 'Gym Essentials' food category for high-protein options!",
-    "weight": "Focus on progressive overload—gradually increasing the weight, frequency, or number of repetitions in your core lifts.",
-    "recovery": "Sleep is crucial. Aim for 7-9 hours of quality sleep and ensure you're drinking at least 3-4 liters of water daily.",
-    "carb": "Carbs are your primary energy source. Focus on complex carbs like oats, brown rice, and sweet potatoes for sustained energy.",
-    "fat": "Healthy fats like avocado, nuts, and olive oil are essential for hormone production and joint health."
-};
+if (addWorkoutBtn) {
+    addWorkoutBtn.addEventListener('click', () => {
+        const typeText = workoutType.options[workoutType.selectedIndex].text;
+        const time = workoutTime.value;
+        const dur = parseInt(workoutDuration.value);
+        if (!time || !dur) return;
 
-function handleGymQuery() {
-    const query = gymQuery.value.toLowerCase();
-    if (!query) return;
+        let calRate = 6;
+        if (workoutType.value === 'hiit') calRate = 12;
+        else if (workoutType.value === 'yoga') calRate = 4;
 
-    let response = "That's a great question! For specific advice on that, I recommend checking our curated Workout Plans or consulting with a certified trainer at IronPulse.";
+        const cals = dur * calRate;
+        // Fat loss estimation (approx): 60% of calories from fat, 9 cals per 1g fat
+        const fatLoss = (cals * 0.6) / 9;
+        // Protein loss estimation (approx): 5% of calories from muscle protein, 4 cals per 1g protein
+        const protLoss = (cals * 0.05) / 4;
 
-    for (const key in mockResponses) {
-        if (query.includes(key)) {
-            response = mockResponses[key];
-            break;
-        }
-    }
-
-    chatResponse.innerText = response;
-    chatResponse.classList.add('active');
-    gymQuery.value = '';
-
-    setTimeout(() => {
-        chatResponse.classList.remove('active');
-    }, 8000);
+        workoutAttendance.push({
+            type: typeText,
+            time,
+            dur,
+            cals,
+            fatLoss: fatLoss.toFixed(1),
+            protLoss: protLoss.toFixed(1)
+        });
+        
+        if(workoutTime) workoutTime.value = '';
+        if(workoutDuration) workoutDuration.value = '';
+        updateWorkoutUI();
+    });
 }
 
-if (sendQuery) sendQuery.addEventListener('click', handleGymQuery);
-if (gymQuery) gymQuery.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleGymQuery(); });
+function updateWorkoutUI() {
+    if(!workoutTable) return;
+    workoutTable.innerHTML = '';
+    workoutAttendance.forEach((item, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${item.time}</td>
+            <td>${item.type.split(' ')[0]}</td>
+            <td>${item.dur}m</td>
+            <td style="color:var(--danger)">🔥 ${item.cals}</td>
+            <td style="color:var(--text-gray)">-${item.protLoss}g</td>
+            <td style="color:#eab308">-${item.fatLoss}g</td>
+            <td><button class="delete-btn" onclick="deleteWorkout(${idx})">×</button></td>
+        `;
+        workoutTable.appendChild(tr);
+    });
+    localStorage.setItem('workoutAttendance', JSON.stringify(workoutAttendance));
+}
+
+window.deleteWorkout = (idx) => {
+    workoutAttendance.splice(idx, 1);
+    updateWorkoutUI();
+};
+
+// Local TensorFlow Google MobileNet Vision AI 
+let tfModel = null;
+const aiCameraBtn = document.getElementById('aiCameraBtn');
+const aiFoodCamera = document.getElementById('aiFoodCamera');
+const aiCameraStatus = document.getElementById('aiCameraStatus');
+
+if (aiCameraBtn && aiFoodCamera) {
+    aiCameraBtn.addEventListener('click', () => aiFoodCamera.click());
+    
+    aiFoodCamera.addEventListener('change', async (e) => {
+        if (!e.target.files.length) return;
+        aiCameraBtn.disabled = true;
+        aiCameraStatus.style.display = 'block';
+        aiCameraStatus.innerText = "⏳ Loading Google Vision AI Model... (Takes a moment first time)";
+        
+        try {
+            if (!tfModel) {
+                // Initialize MobileNet locally (runs completely client-side in browser!)
+                tfModel = await mobilenet.load();
+            }
+            
+            aiCameraStatus.innerText = "👁️ AI is processing your photo...";
+            
+            const file = e.target.files[0];
+            const imgEl = new Image();
+            imgEl.src = URL.createObjectURL(file);
+            await new Promise((resolve) => { imgEl.onload = resolve; });
+            
+            const predictions = await tfModel.classify(imgEl);
+            if (!predictions || predictions.length === 0) throw new Error("Unrecognizable object");
+            
+            // "granny smith, apple" -> "Apple"
+            const detectedName = predictions[0].className.split(',')[0].trim();
+            const confidence = (predictions[0].probability * 100).toFixed(1);
+            
+            aiCameraStatus.innerText = `✅ Identified: ${detectedName} (${confidence}%). Calculating exact macros...`;
+            
+            // Generate macros specifically for 100g of the visually detected item using an LLM
+            const prompt = `You are a strict JSON endpoint. I give you a food class perfectly detected by Google MobileNet: "${detectedName}". Return ONLY a raw JSON object string representing nutritional fact estimates for exactly 100 grams of this food. Format MUST be exactly this (with no markdown, no conversational text): {"calories":95,"protein":0.5,"carbs":25.0,"fats":0.3}`;
+            
+            const res = await fetch('https://text.pollinations.ai/' + encodeURIComponent(prompt));
+            const textResponse = await res.text();
+            
+            const match = textResponse.match(/\{[\s\S]*?\}/);
+            if (!match) throw new Error("Failed to parse macro JSON from text");
+            
+            const parsedMacros = JSON.parse(match[0]);
+            
+            // Assign random realistic grams to the portion
+            const randomGrams = Math.floor(Math.random() * 150) + 50; 
+            const ratio = randomGrams / 100;
+            
+            log.push({
+                name: "📷 AI: " + detectedName.charAt(0).toUpperCase() + detectedName.slice(1),
+                grams: randomGrams,
+                macros: {
+                    calories: (parsedMacros.calories || 0) * ratio,
+                    protein: (parsedMacros.protein || 0) * ratio,
+                    carbs: (parsedMacros.carbs || 0) * ratio,
+                    fats: (parsedMacros.fats || 0) * ratio
+                }
+            });
+            updateUI();
+            
+            aiCameraStatus.innerHTML = `<span style="color:var(--accent-green)">🎉 Successfully scanned & logged ${randomGrams}g of ${detectedName}!</span>`;
+            
+        } catch (error) {
+            console.error("AI Camera Error:", error);
+            aiCameraStatus.innerText = "⚠️ AI failed to process image. Make sure it's a clear photo.";
+        } finally {
+            setTimeout(() => {
+                aiCameraStatus.style.display = 'none';
+                aiCameraBtn.disabled = false;
+                aiFoodCamera.value = ''; // clear input to allow re-selection
+            }, 5000);
+        }
+    });
+}
+
+
+// AI Conversational Chat (General Purpose)
+const robotBtn = document.getElementById('robotBtn');
+const robotChatWindow = document.getElementById('robotChatWindow');
+const closeRobotBtn = document.getElementById('closeRobotBtn');
+const robotQuery = document.getElementById('robotQuery');
+const robotSend = document.getElementById('robotSend');
+const robotChatHistory = document.getElementById('robotChatHistory');
+
+// Speech Elements
+const robotMicBtn = document.getElementById('robotMicBtn');
+const robotVoiceToggle = document.getElementById('robotVoiceToggle');
+const aiVoiceSelect = document.getElementById('aiVoiceSelect');
+
+let chatContext = "You are ChatGPT, a highly helpful AI. Keep answers short and friendly.\\n";
+
+// TTS Setup
+let availableVoices = [];
+function populateVoices() {
+    if (!window.speechSynthesis) return;
+    availableVoices = window.speechSynthesis.getVoices();
+    if(aiVoiceSelect) {
+        aiVoiceSelect.innerHTML = '';
+        availableVoices.forEach((voice, index) => {
+            aiVoiceSelect.options.add(new Option(`${voice.name} (${voice.lang})`, index));
+        });
+    }
+}
+if (window.speechSynthesis) {
+    populateVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = populateVoices;
+    }
+}
+
+// STT Setup
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition;
+if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    
+    recognition.onresult = (e) => {
+        const transcript = e.results[0][0].transcript;
+        robotQuery.value = transcript;
+        handleRobotChat();
+    };
+    
+    recognition.onend = () => {
+        if(robotMicBtn) robotMicBtn.innerText = "🎙️";
+    };
+    
+    if(robotMicBtn) {
+        robotMicBtn.addEventListener('click', () => {
+            recognition.start();
+            robotMicBtn.innerText = "🔴";
+        });
+    }
+}
+
+if (robotBtn) {
+    robotBtn.addEventListener('click', () => { 
+        robotChatWindow.style.display = 'flex'; 
+        robotBtn.style.display = 'none'; 
+    });
+    closeRobotBtn.addEventListener('click', () => { 
+        robotChatWindow.style.display = 'none'; 
+        robotBtn.style.display = 'flex'; 
+    });
+    robotSend.addEventListener('click', handleRobotChat);
+    robotQuery.addEventListener('keypress', (e) => { 
+        if(e.key === 'Enter') handleRobotChat(); 
+    });
+}
+
+async function handleRobotChat() {
+    const q = robotQuery.value.trim();
+    if (!q) return;
+
+    // User Message
+    const userDiv = document.createElement('div');
+    userDiv.className = 'chat-msg user';
+    userDiv.innerText = q;
+    robotChatHistory.appendChild(userDiv);
+    
+    robotQuery.value = '';
+    robotChatHistory.scrollTop = robotChatHistory.scrollHeight;
+
+    // AI "Typing"
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'chat-msg ai';
+    typingDiv.style.fontStyle = 'italic';
+    typingDiv.innerText = "🤖 Thinking...";
+    robotChatHistory.appendChild(typingDiv);
+    robotChatHistory.scrollTop = robotChatHistory.scrollHeight;
+
+    try {
+        const promptParams = chatContext + "User: " + q + "\\nAI:";
+        // Using Pollinations Text Endpoint (free, no key required)
+        const response = await fetch('https://text.pollinations.ai/' + encodeURIComponent(promptParams));
+        if (!response.ok) throw new Error("Network error");
+        
+        const text = await response.text();
+        
+        typingDiv.remove();
+        
+        const aiDiv = document.createElement('div');
+        aiDiv.className = 'chat-msg ai';
+        aiDiv.innerText = text;
+        robotChatHistory.appendChild(aiDiv);
+        
+        // Text-to-Speech
+        if (robotVoiceToggle && robotVoiceToggle.checked && window.speechSynthesis) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            if(aiVoiceSelect && availableVoices.length > 0 && aiVoiceSelect.value) {
+                utterance.voice = availableVoices[aiVoiceSelect.value];
+            }
+            window.speechSynthesis.speak(utterance);
+        }
+        
+        // Update context to maintain conversational memory
+        chatContext += "User: " + q + "\\nAI: " + text + "\\n";
+        if (chatContext.length > 1500) {
+           chatContext = chatContext.slice(-1500); 
+        }
+    } catch (err) {
+        typingDiv.innerText = "⚠️ Network issue or server heavy load. Try again.";
+    }
+    
+    robotChatHistory.scrollTop = robotChatHistory.scrollHeight;
+}

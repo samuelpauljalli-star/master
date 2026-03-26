@@ -22,6 +22,7 @@
         <nav class="app-nav">
             <button class="nav-btn active" data-target="tracker">Tracker</button>
             <button class="nav-btn" data-target="plans">Workout Plans</button>
+            <button class="nav-btn" data-target="transformation">Transformation AI</button>
             <a href="features.html" class="nav-btn">Features</a>
             <a href="motivation.html" class="nav-btn">Motivation</a>
         </nav>
@@ -145,6 +146,14 @@
                             <input type="number" id="gramsInput" placeholder="e.g. 150">
                         </div>
                         <button id="addFoodBtn" class="primary-btn">Add to Log</button>
+                        
+                        <div class="ai-camera-wrapper" style="margin-top: 15px; text-align: center;">
+                            <input type="file" id="aiFoodCamera" accept="image/*" capture="environment" style="display: none;">
+                            <button id="aiCameraBtn" class="secondary-btn" style="width: 100%; border-color: var(--accent-blue); color: var(--accent-blue); padding: 12px; cursor: pointer;">
+                                📷 AI Food Scanner (Photo)
+                            </button>
+                            <p id="aiCameraStatus" style="font-size: 0.8rem; color: var(--text-gray); margin-top: 5px; display: none;"></p>
+                        </div>
                     </div>
                 </section>
 
@@ -181,7 +190,7 @@
             <!-- History Table -->
             <section class="card history">
                 <div class="card-header">
-                    <h2><i class="icon">📝</i> Today's Log</h2>
+                    <h2><i class="icon">📝</i> Today's Food Log</h2>
                     <button id="clearLogBtn" class="secondary-btn">Clear All</button>
                 </div>
                 <div class="table-wrapper">
@@ -198,6 +207,47 @@
                             </tr>
                         </thead>
                         <tbody id="foodTable"></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Workout Attendance Section -->
+            <section class="card attendance-section" style="margin-top: 30px;">
+                <h2><i class="icon">⏱️</i> Log Workout Attendance</h2>
+                <div class="input-group">
+                    <div class="field">
+                        <label for="workoutType">Exercise Type</label>
+                        <select id="workoutType">
+                            <option value="weights">🏋️ Weightlifting</option>
+                            <option value="hiit">🏃‍♂️ HIIT / Cardio</option>
+                            <option value="yoga">🧘 Yoga / Stretching</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="workoutTime">Time Done</label>
+                        <input type="time" id="workoutTime">
+                    </div>
+                    <div class="field">
+                        <label for="workoutDuration">Duration (mins)</label>
+                        <input type="number" id="workoutDuration" placeholder="e.g. 45">
+                    </div>
+                    <button id="addWorkoutBtn" class="primary-btn">Log & Calculate</button>
+                </div>
+
+                <div class="table-wrapper" style="margin-top: 20px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Workout</th>
+                                <th>Dur (m)</th>
+                                <th>🔥 Cals Burned</th>
+                                <th>🥩 Protein Loss</th>
+                                <th>🧈 Fat Loss</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="workoutTable"></tbody>
                     </table>
                 </div>
             </section>
@@ -257,26 +307,126 @@
                     </div>
                 </div>
             </section>
+            
+            <!-- Recommended Workout Tracks -->
+            <section class="card music-section" style="margin-top: 30px;">
+                <h2><i class="icon">🎧</i> Recommended Workout Tracks</h2>
+                <div class="main-grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="music-box" style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                        <h3 style="color: var(--accent-blue); margin-bottom: 15px;">🔥 High Energy (English)</h3>
+                        <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
+                            <li><a href="https://www.youtube.com/watch?v=Kbj2Zss-5GY" target="_blank" class="music-link">▶️ Till I Collapse - Eminem</a></li>
+                            <li><a href="https://www.youtube.com/watch?v=_Yhyp-_hX2s" target="_blank" class="music-link">▶️ Lose Yourself - Eminem</a></li>
+                            <li><a href="https://www.youtube.com/watch?v=btPJPFnesV4" target="_blank" class="music-link">▶️ Eye of the Tiger - Survivor</a></li>
+                            <li><a href="https://www.youtube.com/watch?v=aGzzx2BtvZc" target="_blank" class="music-link">▶️ Can't Be Touched - Roy Jones</a></li>
+                            <li><a href="https://www.youtube.com/watch?v=VDvr08sCPOc" target="_blank" class="music-link">▶️ Remember The Name - Fort Minor</a></li>
+                            <li><a href="https://www.youtube.com/watch?v=PsO6ZnUZI0g" target="_blank" class="music-link">▶️ Stronger - Kanye West</a></li>
+                        </ul>
+                    </div>
+                    <div class="music-box" style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                        <h3 style="color: var(--accent-green); margin-bottom: 15px;">🥁 Mass Beats (Telugu)</h3>
+                        <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
+                            <li><a href="https://www.youtube.com/watch?v=DPcM3kG0Kq" target="_blank" class="music-link">▶️ Hungry Cheetah - OG</a></li>
+                            <li><a href="https://www.youtube.com/watch?v=19yXKIvwCWc" target="_blank" class="music-link">▶️ Hukum - Jailer</a></li>
+                            <li><a href="https://www.youtube.com/watch?v=R9K-U6dJ7M" target="_blank" class="music-link">▶️ Aaradugula Bullet - AD</a></li>
+                            <li><a href="https://www.youtube.com/watch?v=T94PCz0oW2g" target="_blank" class="music-link">▶️ Naa Ready - Leo</a></li>
+                            <li><a href="https://www.youtube.com/watch?v=OsU0CGZoV8E" target="_blank" class="music-link">▶️ Naatu Naatu - RRR</a></li>
+                            <li><a href="https://www.youtube.com/watch?v=r_yGIfI-3Lg" target="_blank" class="music-link">▶️ Bheemla Nayak Title Song</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Transformation Tab -->
+        <div id="transformation-tab" class="tab-content">
+            <div class="main-grid">
+                <!-- User Profile Form -->
+                <section class="card profile-section">
+                    <h2><i class="icon">🧬</i> Body Transformation AI</h2>
+                    <p class="subtitle">Personalize your journey to peak fitness</p>
+                    <div class="input-group">
+                        <div class="field">
+                            <label for="userWeight">Current Weight (kg)</label>
+                            <input type="number" id="userWeight" placeholder="e.g. 75">
+                        </div>
+                        <div class="field">
+                            <label for="userHeight">Current Height (cm)</label>
+                            <input type="number" id="userHeight" placeholder="e.g. 175">
+                        </div>
+                        <div class="field">
+                            <label for="targetMonths">Transformation Months</label>
+                            <input type="number" id="targetMonths" placeholder="e.g. 3">
+                        </div>
+                        <div class="field">
+                            <label for="goalType">Your Primary Goal</label>
+                            <select id="goalType">
+                                <option value="loss">🔥 Weight Loss</option>
+                                <option value="gain">💪 Muscle Gain</option>
+                                <option value="height">📏 Height Improvement (Stretches)</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label id="targetLabel" for="targetValue">Target Weight Change (kg)</label>
+                            <input type="number" id="targetValue" placeholder="e.g. 5">
+                        </div>
+                        <button id="generatePlanBtn" class="primary-btn">Generate My AI Plan</button>
+                    </div>
+                </section>
+
+                <!-- Transformation Result -->
+                <section class="card transformation-result-card">
+                    <h2><i class="icon">✨</i> Your 12-Hour Blueprint</h2>
+                    <div id="no-plan-placeholder" class="placeholder">
+                        <p>Fill in your details to generate your personalized schedule.</p>
+                    </div>
+                    <div id="plan-display-area" style="display: none;">
+                        <div class="chart-container" style="height: 200px; margin-bottom: 30px;">
+                            <canvas id="blueprintChart"></canvas>
+                        </div>
+                        <div id="plan-timeline-container" class="plan-timeline">
+                            <!-- Timeline items injected by JS -->
+                        </div>
+                    </div>
+                    <div class="plan-actions" style="display: none;" id="plan-actions">
+                        <button id="enableNotifications" class="secondary-btn">Enable 🔔 Reminders</button>
+                        <button id="resetPlan" class="secondary-btn danger">Reset</button>
+                    </div>
+                </section>
+            </div>
         </div>
 
     </div>
 
-    <!-- AI Gym Assistant Bar -->
-    <div class="chat-bar">
-        <div class="chat-container">
-            <div class="chat-header">
-                <span class="pulse-icon">⚡</span>
-                <span>IronPulse AI Assistant</span>
+    <!-- AI Robot Chatbot -->
+    <button id="robotBtn" class="robot-fab">
+        <span class="pulse-icon" style="font-size: 1.5rem;">🤖</span>
+    </button>
+
+    <div id="robotChatWindow" class="robot-window" style="display: none;">
+        <div class="robot-header">
+            <span>🤖 IronPulse Gen-AI</span>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label style="font-size: 0.7rem; display:flex; align-items:center; gap:3px; color:var(--text-white);">
+                    <input type="checkbox" id="robotVoiceToggle" checked> 🔊
+                </label>
+                <select id="aiVoiceSelect" style="background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--accent-green); border-radius: 4px; font-size: 0.7rem; max-width: 80px;"></select>
+                <button id="closeRobotBtn" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer; line-height: 1;">&times;</button>
             </div>
-            <div class="chat-input-wrapper">
-                <input type="text" id="gymQuery" placeholder="Ask about workouts, diet, or recovery...">
-                <button id="sendQuery">Send</button>
-            </div>
-            <div id="chatResponse" class="chat-response"></div>
+        </div>
+        <div id="robotChatHistory" class="chat-history" style="flex: 1; max-height: none;">
+            <div class="chat-msg ai">Hello! I am your advanced AI. Ask me about fitness, coding, math, or ANY topic just like ChatGPT. I can even speak!</div>
+        </div>
+        <div class="chat-input-wrapper" style="padding: 10px; border-top: 1px solid var(--border-color); background: rgba(0,0,0,0.5);">
+            <button id="robotMicBtn" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-white);" title="Talk to AI">🎙️</button>
+            <input type="text" id="robotQuery" placeholder="Ask me anything..." style="flex:1;">
+            <button id="robotSend">➤</button>
         </div>
     </div>
 
+    <!-- Google TensorFlow.js & MobileNet Model for local AI Food Recognition -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@latest"></script>
     <script src="script.js"></script>
 </body>
-
 </html>
