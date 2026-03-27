@@ -17,6 +17,26 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* =============================================
+           🔮 MOUSE FOLLOWING NEON RING
+        ============================================= */
+        #mouse-ring {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: transparent;
+            border: 2px solid #c084fc;
+            box-shadow:
+                0 0 8px #c084fc,
+                0 0 20px #c084fc,
+                0 0 50px rgba(192, 132, 252, 0.4);
+            pointer-events: none;
+            z-index: 99999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s ease, height 0.2s ease, box-shadow 0.2s ease;
+        }
+
         /* Base Reset & Variables */
         :root {
             --bg-color: #050505;
@@ -2116,7 +2136,28 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeLightbox();
         });
+        // =============================================
+        // 🔮 SINGLE NEON RING CURSOR
+        // =============================================
+        const ring = document.getElementById('mouse-ring');
+        let mouseX = -200, mouseY = -200;
+        let ringX = -200, ringY = -200;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        (function animateRing() {
+            ringX += (mouseX - ringX) * 0.12;
+            ringY += (mouseY - ringY) * 0.12;
+            ring.style.left = ringX + 'px';
+            ring.style.top = ringY + 'px';
+            requestAnimationFrame(animateRing);
+        })();
     </script>
+    <!-- Single Neon Ring Cursor -->
+    <div id="mouse-ring"></div>
 </body>
 
 </html>
