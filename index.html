@@ -1374,6 +1374,187 @@
             }
         }
 
+        /* Gallery Section */
+        .gallery {
+            padding: 5rem 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .gallery h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-auto-rows: 220px;
+            gap: 1rem;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .gallery-item.wide {
+            grid-column: span 2;
+        }
+
+        .gallery-item.tall {
+            grid-row: span 2;
+        }
+
+        .gallery-item.big {
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.1) 60%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            display: flex;
+            align-items: flex-end;
+            padding: 1.5rem;
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+
+        .gallery-caption {
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transform: translateY(10px);
+            transition: transform 0.4s ease;
+        }
+
+        .gallery-item:hover .gallery-caption {
+            transform: translateY(0);
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .lightbox.open {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 90vw;
+            max-height: 85vh;
+            border-radius: 16px;
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.3);
+            animation: lbFadeIn 0.3s ease;
+        }
+
+        @keyframes lbFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.92);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 2rem;
+            font-size: 2.5rem;
+            color: #fff;
+            cursor: pointer;
+            transition: color 0.3s, transform 0.3s;
+            line-height: 1;
+        }
+
+        .lightbox-close:hover {
+            color: var(--accent);
+            transform: rotate(90deg);
+        }
+
+        .lightbox-caption {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            backdrop-filter: blur(4px);
+        }
+
+        @media (max-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-auto-rows: 160px;
+            }
+
+            .gallery-item.wide,
+            .gallery-item.big {
+                grid-column: span 2;
+            }
+
+            .gallery-item.tall,
+            .gallery-item.big {
+                grid-row: span 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gallery-grid {
+                grid-template-columns: 1fr;
+                grid-auto-rows: 200px;
+            }
+
+            .gallery-item.wide,
+            .gallery-item.big,
+            .gallery-item.tall {
+                grid-column: span 1;
+                grid-row: span 1;
+            }
+        }
+
         /* Global Mouse Trail Particles CSS */
         .mouse-trail-particle {
             position: fixed;
@@ -1419,6 +1600,7 @@
                 <a href="#skills">Skills</a>
                 <a href="#projects">Projects</a>
                 <a href="#goals">Learning Goals</a>
+                <a href="#gallery">Gallery</a>
             </nav>
         </div>
     </header>
@@ -1682,6 +1864,25 @@
         </div>
     </section>
 
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery">
+        <h2>Gallery</h2>
+        <div class="gallery-grid">
+            <!-- Big feature image -->
+            <div class="gallery-item big" data-caption="Coding & Development" onclick="openLightbox(this)">
+                <img src="images/01.jpg" alt="Coding at desk">
+                <div class="gallery-overlay"><span class="gallery-caption">💻 Coding &amp; Development</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <img id="lightbox-img" src="" alt="">
+        <div class="lightbox-caption" id="lightbox-caption"></div>
+    </div>
+
     <!-- Details / Contact Section -->
     <section id="details" class="details">
         <h2>Contact Details</h2>
@@ -1700,7 +1901,7 @@
                 <i class="fas fa-phone contact-icon"></i>
                 <div class="contact-info">
                     <h3>Phone</h3>
-                    <p><a href="tel:+919182764299">+91 9182764299</a></p>
+                    <p><a href="tel:+919182764299">+91 9*8*76**99</a></p>
                 </div>
             </div>
 
@@ -1710,7 +1911,7 @@
                 <div class="contact-info">
                     <h3>WhatsApp</h3>
                     <p><a href="https://wa.me/919182764299?text=HI%20SAMUEL%20SIR%2C%20I%20VISITED%20YOUR%20WEBPAGE%20%2C%20I%20WANT%20CONTACT%20YOU%20THROUGH%20THE%20WAHTSAPP..%20%F0%9F%91%8B%F0%9F%9A%80"
-                            target="_blank">+91 9182764299</a></p>
+                            target="_blank">+91 9*8*76**99</a></p>
                 </div>
             </div>
 
@@ -1719,7 +1920,7 @@
                 <i class="fab fa-telegram contact-icon"></i>
                 <div class="contact-info">
                     <h3>Telegram</h3>
-                    <p><a href="https://t.me/+919182764299" target="_blank">+91 9182764299</a></p>
+                    <p><a href="https://t.me/+919182764299" target="_blank">+91 9*8*76**99</a></p>
                 </div>
             </div>
 
@@ -1729,7 +1930,7 @@
                 <div class="contact-info">
                     <h3>Email</h3>
                     <p><a
-                            href="mailto:samuelpauljalli@gmail.com?subject=Portfolio%20Inquiry&body=Hi%20Samuel%20Sir%2C%20I%20visited%20your%20webpage%20and%20wanted%20to%20contact%20you.%20%F0%9F%91%8B">samuelpauljalli@gmail.com</a>
+                            href="mailto:samuelpauljalli@gmail.com?subject=Portfolio%20Inquiry&body=Hi%20Samuel%20Sir%2C%20I%20visited%20your%20webpage%20and%20wanted%20to%20contact%20you.%20%F0%9F%91%8B">Paul@gmail.com</a>
                     </p>
                 </div>
             </div>
@@ -1739,8 +1940,7 @@
                 <i class="fab fa-linkedin contact-icon"></i>
                 <div class="contact-info">
                     <h3>LinkedIn</h3>
-                    <p><a href="https://www.linkedin.com/in/samuelpauljalli"
-                            target="_blank">linkedin.com/in/samuelpauljalli</a></p>
+                    <p><a href="https://www.linkedin.com/in/samuelpauljalli" target="_blank">samuel paul jalli</a></p>
                 </div>
             </div>
 
@@ -1894,6 +2094,27 @@
             setTimeout(() => {
                 particle.remove();
             }, 600);
+        });
+
+        // Gallery Lightbox
+        function openLightbox(el) {
+            const img = el.querySelector('img');
+            const caption = el.getAttribute('data-caption');
+            document.getElementById('lightbox-img').src = img.src;
+            document.getElementById('lightbox-caption').textContent = caption;
+            document.getElementById('lightbox').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox(e) {
+            if (!e || e.target !== document.getElementById('lightbox-img')) {
+                document.getElementById('lightbox').classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
         });
     </script>
 </body>
