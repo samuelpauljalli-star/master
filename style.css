@@ -379,7 +379,8 @@ header {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    width: 420px;
+    width: 600px;
+    max-width: 90vw;
     background: #141414;
     border-radius: 18px;
     border: 1px solid var(--bg-red);
@@ -443,7 +444,7 @@ header {
 
 .video-tab-body video {
     width: 100%;
-    max-height: 260px;
+    max-height: 420px;
     display: block;
 }
 
