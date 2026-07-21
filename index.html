@@ -379,25 +379,27 @@
             </div>
 
             <div class="contact-form fade-up">
-                <form action="https://formsubmit.co/samuelpauljalli@gmail.com" method="POST">
+                <form action="https://formsubmit.co/samuelpauljalli@gmail.com" method="POST" onsubmit="return prepareContactSubmission(this)">
                     <input type="hidden" name="_subject" value="A person sent a message to you">
                     <input type="hidden" name="_template" value="table">
                     <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="email" id="hiddenEmailCopy">
+                    <input type="hidden" name="When Sent" id="whenSentTimestamp">
                     <div class="form-grid">
                         <div class="form-group">
                             <label
                                 style="color:white; font-size:0.8rem; letter-spacing:1px; margin-bottom:5px; display:block;">REACH
                                 OUT</label>
-                            <input type="text" name="FirstName" placeholder="First Name" required>
+                            <input type="text" name="Who Sent (First Name)" placeholder="First Name" required>
                         </div>
                         <div class="form-group">
-                            <input type="text" name="LastName" placeholder="Last Name" style="margin-top:20px;">
+                            <input type="text" name="Who Sent (Last Name)" placeholder="Last Name" style="margin-top:20px;">
                         </div>
                         <div class="form-group">
-                            <input type="email" name="Email" placeholder="Email" required>
+                            <input type="email" name="From Mail" id="senderEmailInput" placeholder="Email" required>
                         </div>
                         <div class="form-group">
-                            <textarea name="Message" rows="1" placeholder="Type your message here" required></textarea>
+                            <textarea name="What Message" rows="1" placeholder="Type your message here" required></textarea>
                         </div>
                     </div>
                     <div class="form-check">
@@ -498,6 +500,20 @@
 
             // Automatically close the small tab when video completes playing
             reelVideo.addEventListener('ended', closeAndResetVideo);
+        }
+
+        // Populate clear labels and timestamp right when the user clicks Send Message
+        function prepareContactSubmission(form) {
+            const timestampInput = document.getElementById('whenSentTimestamp');
+            if (timestampInput) {
+                timestampInput.value = new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'medium' });
+            }
+            const emailInput = document.getElementById('senderEmailInput');
+            const hiddenEmail = document.getElementById('hiddenEmailCopy');
+            if (emailInput && hiddenEmail) {
+                hiddenEmail.value = emailInput.value;
+            }
+            return true;
         }
     </script>
 </body>
